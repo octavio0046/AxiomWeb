@@ -31,6 +31,7 @@
           <th class="text-end">Precio</th>
           <th class="text-end">Costo</th>
           <th class="text-end">Stock</th>
+          <th>Estado</th>
           @if (canManageProducts()) {
             <th class="text-end">Acciones</th>
           }
@@ -38,7 +39,7 @@
       </thead>
       <tbody>
         @for (product of products(); track product.id) {
-          <tr>
+          <tr [class.table-secondary]="product.is_active === 0">
             <td>{{ product.sku }}</td>
             <td>{{ product.name }}</td>
             <td>{{ product.category_name }}</td>
@@ -46,6 +47,13 @@
             <td class="text-end">{{ product.price | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
             <td class="text-end">{{ product.cost | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
             <td class="text-end">{{ product.stock }}</td>
+            <td>
+              @if (product.is_active !== 0) {
+                <span class="badge text-bg-success">Activo</span>
+              } @else {
+                <span class="badge text-bg-secondary">Inactivo</span>
+              }
+            </td>
             @if (canManageProducts()) {
               <td class="text-end">
                 <button
@@ -61,7 +69,7 @@
         } @empty {
           <tr>
             <td
-              [attr.colspan]="canManageProducts() ? 8 : 7"
+              [attr.colspan]="canManageProducts() ? 9 : 8"
               class="text-center text-muted"
             >
               No hay productos registrados
@@ -234,9 +242,10 @@
                 />
                 <label class="form-check-label" for="editProductActive">Activo</label>
               </div>
-              <p class="small text-muted mb-0 mt-2">
-                El stock no se edita aquí; solo cambia con compras y ventas.
-              </p>
+                <p class="small text-muted mb-0 mt-2">
+                  El stock no se edita aquí; solo cambia con compras y ventas.
+                  Si está <strong>inactivo</strong>, no aparecerá en nuevas ventas ni compras.
+                </p>
             </div>
           </div>
         </div>

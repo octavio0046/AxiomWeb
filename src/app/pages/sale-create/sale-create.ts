@@ -72,7 +72,8 @@ export class SaleCreate implements OnInit {
 
     this.productsService.list().subscribe({
       next: (items) => {
-        this.products.set(items);
+        // Solo productos activos se pueden vender
+        this.products.set(items.filter((p) => p.is_active !== 0));
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
