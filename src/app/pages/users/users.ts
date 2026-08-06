@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 import { RolesService } from '../../core/services/roles.service';
 import { UsersService } from '../../core/services/users.service';
 import { Role, UserAccount } from '../../core/models/api.models';
@@ -11,7 +12,7 @@ declare const bootstrap: {
 
 @Component({
   selector: 'app-users',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './users.html',
 })
 export class Users implements OnInit {

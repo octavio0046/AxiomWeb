@@ -67,6 +67,17 @@ export interface ProductCreate {
   cost: number;
 }
 
+export interface ProductUpdate {
+  category_id?: number;
+  sku?: string;
+  name?: string;
+  description?: string | null;
+  product_type?: ProductType;
+  price?: number;
+  cost?: number;
+  is_active?: number;
+}
+
 export interface Customer {
   id: number;
   name: string;
@@ -82,12 +93,36 @@ export interface CustomerCreate {
   document_number?: string | null;
   phone?: string | null;
   email?: string | null;
+  address?: string | null;
+}
+
+export interface CustomerUpdate {
+  name?: string;
+  document_number?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  is_active?: number;
 }
 
 export interface Role {
   id: number;
   name: string;
   description?: string | null;
+}
+
+export interface Permission {
+  id: number;
+  code: string;
+  name: string;
+  module: string;
+  description?: string | null;
+}
+
+export interface RolePermissionsData {
+  role: Role;
+  permissions: Permission[];
+  permission_ids: number[];
 }
 
 export interface UserAccount {
@@ -192,6 +227,15 @@ export interface SupplierCreate {
   phone?: string | null;
   email?: string | null;
   address?: string | null;
+}
+
+export interface SupplierUpdate {
+  name?: string;
+  document_number?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  is_active?: number;
 }
 
 export interface Purchase {

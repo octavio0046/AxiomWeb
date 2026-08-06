@@ -72,6 +72,17 @@
         </div>
       </div>
     </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5 card-title">
+            <i class="bi bi-shield-lock me-2"></i>Roles
+          </h2>
+          <p class="card-text text-muted">Edita qué permisos tiene cada rol del sistema.</p>
+          <a routerLink="/roles" class="btn btn-outline-primary btn-sm">Ir a roles</a>
+        </div>
+      </div>
+    </div>
   }
 
   @if (can('suppliers.view', 'suppliers.manage')) {
@@ -88,15 +99,20 @@
     </div>
   }
 
-  @if (can('purchases.create')) {
+  @if (can('purchases.view', 'purchases.create')) {
     <div class="col-md-6 col-lg-3">
       <div class="card h-100">
         <div class="card-body">
           <h2 class="h5 card-title">
             <i class="bi bi-box-arrow-in-down me-2"></i>Compras
           </h2>
-          <p class="card-text text-muted">Ingresa mercadería y aumenta el stock del inventario.</p>
-          <a routerLink="/purchases/new" class="btn btn-outline-primary btn-sm">Nueva compra</a>
+          <p class="card-text text-muted">Consulta compras e ingresa mercadería al inventario.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a routerLink="/purchases" class="btn btn-outline-primary btn-sm">Ver compras</a>
+            @if (can('purchases.create')) {
+              <a routerLink="/purchases/new" class="btn btn-outline-primary btn-sm">Nueva compra</a>
+            }
+          </div>
         </div>
       </div>
     </div>

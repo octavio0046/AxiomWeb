@@ -25,8 +25,14 @@ ng serve
 
 ## Credenciales de demo
 
-- Usuario: `admin`
-- Contraseña: `admin123`
+Crear o actualizar en API: `node scripts/seed-demo-users.js` (desde `AxiomApi`)
+
+| Usuario | Contraseña | Rol |
+|---------|------------|-----|
+| `admin` | `admin123` | Administrador |
+| `vendedor` | `test123` | Vendedor |
+| `supervisor` | `test123` | Supervisor |
+| `comprador` | `test123` | Comprador |
 
 ## Módulos
 

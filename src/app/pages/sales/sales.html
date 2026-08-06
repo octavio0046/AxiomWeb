@@ -3,9 +3,11 @@
     <h1 class="h3 mb-0">Ventas</h1>
     <p class="text-muted mb-0">Historial de ventas</p>
   </div>
-  <a routerLink="/sales/new" class="btn btn-primary">
-    <i class="bi bi-cart-plus me-1"></i>Nueva venta
-  </a>
+  @if (canCreateSales()) {
+    <a routerLink="/sales/new" class="btn btn-primary">
+      <i class="bi bi-cart-plus me-1"></i>Nueva venta
+    </a>
+  }
 </div>
 
 @if (error()) {

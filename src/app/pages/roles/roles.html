@@ -1,0 +1,121 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Roles y permisos</h1>
+    <p class="text-muted mb-0">Define a qué módulos y acciones tiene acceso cada rol</p>
+  </div>
+  <a routerLink="/users" class="btn btn-outline-secondary">
+    <i class="bi bi-people me-1"></i>
+    Ir a usuarios
+  </a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+}
+@if (success()) {
+  <div class="alert alert-success">{{ success() }}</div>
+}
+
+@if (loading()) {
+  <div class="text-muted">Cargando roles...</div>
+} @else {
+  <div class="row g-4">
+    <div class="col-lg-3">
+      <div class="list-group">
+        @for (role of roles(); track role.id) {
+          <button
+            type="button"
+            class="list-group-item list-group-item-action"
+            [class.active]="selectedRoleId() === role.id"
+            (click)="selectRole(role.id)"
+          >
+            <div class="fw-semibold">{{ roleLabel(role.name) }}</div>
+            <div class="small opacity-75">{{ role.description || role.name }}</div>
+          </button>
+        } @empty {
+          <div class="list-group-item text-muted">No hay roles</div>
+        }
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      @if (!selectedRole()) {
+        <div class="text-muted">Selecciona un rol para editar sus permisos.</div>
+      } @else if (loadingRole()) {
+        <div class="text-muted">Cargando permisos del rol...</div>
+      } @else {
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div>
+            <h2 class="h5 mb-1">{{ roleLabel(selectedRole()?.name) }}</h2>
+            <p class="text-muted small mb-0">
+              {{ selectedIds().size }} permiso(s) seleccionado(s)
+            </p>
+          </div>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="saving()"
+            (click)="save()"
+          >
+            @if (saving()) {
+              Guardando...
+            } @else {
+              <i class="bi bi-check2-circle me-1"></i>
+              Guardar cambios
+            }
+          </button>
+        </div>
+
+        <div class="row g-3">
+          @for (group of permissionsByModule(); track group.module) {
+            <div class="col-md-6">
+              <div class="border rounded p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                  <h3 class="h6 mb-0">{{ group.label }}</h3>
+                  <div class="btn-group btn-group-sm">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="selectAllInModule(group.module)"
+                    >
+                      Todo
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="clearModule(group.module)"
+                    >
+                      Ninguno
+                    </button>
+                  </div>
+                </div>
+
+                @for (permission of group.permissions; track permission.id) {
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [id]="'perm-' + permission.id"
+                      [checked]="isChecked(permission.id)"
+                      [disabled]="isLocked(permission)"
+                      (change)="togglePermission(permission.id, $any($event.target).checked)"
+                    />
+                    <label class="form-check-label" [for]="'perm-' + permission.id">
+                      <span class="fw-medium">{{ permission.name }}</span>
+                      <span class="d-block small text-muted">
+                        {{ permission.description || permission.code }}
+                        @if (isLocked(permission)) {
+                          · obligatorio para admin
+                        }
+                      </span>
+                    </label>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

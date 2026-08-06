@@ -2,7 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiListResponse, Supplier, SupplierCreate } from '../models/api.models';
+import {
+  ApiListResponse,
+  Supplier,
+  SupplierCreate,
+  SupplierUpdate,
+} from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class SuppliersService {
@@ -17,5 +22,9 @@ export class SuppliersService {
 
   create(payload: SupplierCreate): Observable<{ ok: boolean; id: number }> {
     return this.http.post<{ ok: boolean; id: number }>(this.baseUrl, payload);
+  }
+
+  update(id: number, payload: SupplierUpdate): Observable<{ ok: boolean; message?: string }> {
+    return this.http.put<{ ok: boolean; message?: string }>(`${this.baseUrl}/${id}`, payload);
   }
 }

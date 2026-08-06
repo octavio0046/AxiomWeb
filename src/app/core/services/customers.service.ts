@@ -2,7 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiListResponse, Customer, CustomerCreate } from '../models/api.models';
+import {
+  ApiListResponse,
+  Customer,
+  CustomerCreate,
+  CustomerUpdate,
+} from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class CustomersService {
@@ -17,5 +22,9 @@ export class CustomersService {
 
   create(payload: CustomerCreate): Observable<{ ok: boolean; id: number }> {
     return this.http.post<{ ok: boolean; id: number }>(this.baseUrl, payload);
+  }
+
+  update(id: number, payload: CustomerUpdate): Observable<{ ok: boolean; message?: string }> {
+    return this.http.put<{ ok: boolean; message?: string }>(`${this.baseUrl}/${id}`, payload);
   }
 }

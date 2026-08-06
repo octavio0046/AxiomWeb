@@ -10,6 +10,7 @@ import { Sales } from './pages/sales/sales';
 import { SaleCreate } from './pages/sale-create/sale-create';
 import { SaleReceipt } from './pages/sale-receipt/sale-receipt';
 import { Users } from './pages/users/users';
+import { RolesPage } from './pages/roles/roles';
 import { Suppliers } from './pages/suppliers/suppliers';
 import { Purchases } from './pages/purchases/purchases';
 import { PurchaseCreate } from './pages/purchase-create/purchase-create';
@@ -41,6 +42,11 @@ export const routes: Routes = [
       {
         path: 'users',
         component: Users,
+        canActivate: [permissionGuard('users.manage')],
+      },
+      {
+        path: 'roles',
+        component: RolesPage,
         canActivate: [permissionGuard('users.manage')],
       },
       {

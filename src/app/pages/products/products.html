@@ -8,7 +8,7 @@
       type="button"
       class="btn btn-primary"
       data-bs-toggle="modal"
-      data-bs-target="#productModal"
+      data-bs-target="#productCreateModal"
     >
       <i class="bi bi-plus-lg me-1"></i>Nuevo producto
     </button>
@@ -36,6 +36,9 @@
           <th class="text-end">Precio</th>
           <th class="text-end">Costo</th>
           <th class="text-end">Stock</th>
+          @if (canManageProducts()) {
+            <th class="text-end">Acciones</th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -48,10 +51,26 @@
             <td class="text-end">{{ product.price | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
             <td class="text-end">{{ product.cost | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
             <td class="text-end">{{ product.stock }}</td>
+            @if (canManageProducts()) {
+              <td class="text-end">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="openEdit(product)"
+                >
+                  Editar
+                </button>
+              </td>
+            }
           </tr>
         } @empty {
           <tr>
-            <td colspan="7" class="text-center text-muted">No hay productos registrados</td>
+            <td
+              [attr.colspan]="canManageProducts() ? 8 : 7"
+              class="text-center text-muted"
+            >
+              No hay productos registrados
+            </td>
           </tr>
         }
       </tbody>
@@ -60,69 +79,187 @@
 }
 
 @if (canManageProducts()) {
-<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <form [formGroup]="form" (ngSubmit)="create()">
-        <div class="modal-header">
-          <h2 class="modal-title h5" id="productModalLabel">Nuevo producto</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label" for="sku">SKU</label>
-              <input id="sku" type="text" class="form-control" formControlName="sku" />
-            </div>
-            <div class="col-md-8">
-              <label class="form-label" for="name">Nombre</label>
-              <input id="name" type="text" class="form-control" formControlName="name" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="category_id">Categoría</label>
-              <select id="category_id" class="form-select" formControlName="category_id">
-                <option value="" disabled>Selecciona una categoría</option>
-                @for (cat of categories(); track cat.id) {
-                  <option [value]="cat.id">{{ cat.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="product_type">Tipo</label>
-              <select id="product_type" class="form-select" formControlName="product_type">
-                @for (type of productTypes; track type.value) {
-                  <option [value]="type.value">{{ type.label }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="price">Precio de venta</label>
-              <input id="price" type="number" min="0" step="0.01" class="form-control" formControlName="price" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="cost">Costo de referencia</label>
-              <input id="cost" type="number" min="0" step="0.01" class="form-control" formControlName="cost" />
-            </div>
-            <div class="col-12">
-              <div class="alert alert-info mb-0 py-2">
-                El producto se crea con <strong>stock 0</strong>. Para ingresar existencias debes
-                registrar una <strong>compra</strong>.
+  <div
+    class="modal fade"
+    id="productCreateModal"
+    tabindex="-1"
+    aria-labelledby="productCreateModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form [formGroup]="createForm" (ngSubmit)="create()">
+          <div class="modal-header">
+            <h2 class="modal-title h5" id="productCreateModalLabel">Nuevo producto</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label" for="sku">SKU</label>
+                <input id="sku" type="text" class="form-control" formControlName="sku" />
+              </div>
+              <div class="col-md-8">
+                <label class="form-label" for="name">Nombre</label>
+                <input id="name" type="text" class="form-control" formControlName="name" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="category_id">Categoría</label>
+                <select id="category_id" class="form-select" formControlName="category_id">
+                  <option value="" disabled>Selecciona una categoría</option>
+                  @for (cat of categories(); track cat.id) {
+                    <option [value]="cat.id">{{ cat.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="product_type">Tipo</label>
+                <select id="product_type" class="form-select" formControlName="product_type">
+                  @for (type of productTypes; track type.value) {
+                    <option [value]="type.value">{{ type.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="price">Precio de venta</label>
+                <input
+                  id="price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="form-control"
+                  formControlName="price"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="cost">Costo de referencia</label>
+                <input
+                  id="cost"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="form-control"
+                  formControlName="cost"
+                />
+              </div>
+              <div class="col-12">
+                <div class="alert alert-info mb-0 py-2">
+                  El producto se crea con <strong>stock 0</strong>. Para ingresar existencias debes
+                  registrar una <strong>compra</strong>.
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary" [disabled]="saving()">
-            @if (saving()) {
-              Guardando...
-            } @else {
-              Guardar
-            }
-          </button>
-        </div>
-      </form>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">
+              @if (saving()) {
+                Guardando...
+              } @else {
+                Guardar
+              }
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>
+
+  <div
+    class="modal fade"
+    id="productEditModal"
+    tabindex="-1"
+    aria-labelledby="productEditModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form [formGroup]="editForm" (ngSubmit)="update()">
+          <div class="modal-header">
+            <h2 class="modal-title h5" id="productEditModalLabel">Editar producto</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label" for="editSku">SKU</label>
+                <input id="editSku" type="text" class="form-control" formControlName="sku" />
+              </div>
+              <div class="col-md-8">
+                <label class="form-label" for="editName">Nombre</label>
+                <input id="editName" type="text" class="form-control" formControlName="name" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="editCategory">Categoría</label>
+                <select id="editCategory" class="form-select" formControlName="category_id">
+                  <option value="" disabled>Selecciona una categoría</option>
+                  @for (cat of categories(); track cat.id) {
+                    <option [value]="cat.id">{{ cat.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="editType">Tipo</label>
+                <select id="editType" class="form-select" formControlName="product_type">
+                  @for (type of productTypes; track type.value) {
+                    <option [value]="type.value">{{ type.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="editPrice">Precio de venta</label>
+                <input
+                  id="editPrice"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="form-control"
+                  formControlName="price"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="editCost">Costo de referencia</label>
+                <input
+                  id="editCost"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="form-control"
+                  formControlName="cost"
+                />
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input
+                    id="editProductActive"
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="is_active"
+                  />
+                  <label class="form-check-label" for="editProductActive">Activo</label>
+                </div>
+                <p class="small text-muted mb-0 mt-2">
+                  El stock no se edita aquí; solo cambia con compras y ventas.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">
+              @if (saving()) {
+                Guardando...
+              } @else {
+                Guardar cambios
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 }
