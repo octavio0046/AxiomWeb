@@ -1,2 +1,16 @@
 ﻿@import "bootstrap/scss/bootstrap";
 @import "bootstrap-icons/font/bootstrap-icons";
+
+/* Oculta chrome de la app al imprimir recibos */
+@media print {
+  .navbar,
+  .no-print {
+    display: none !important;
+  }
+
+  main.container {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}

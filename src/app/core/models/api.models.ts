@@ -136,6 +136,29 @@ export interface Sale {
   notes?: string | null;
 }
 
+export interface SaleItem {
+  id: number;
+  product_id: number;
+  sku?: string;
+  product_name?: string;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+}
+
+export interface SalePayment {
+  id: number;
+  method: PaymentMethod | string;
+  amount: number;
+  paid_at?: string;
+  reference?: string | null;
+}
+
+export interface SaleDetail extends Sale {
+  items: SaleItem[];
+  payments: SalePayment[];
+}
+
 export interface SaleItemInput {
   product_id: number;
   quantity: number;

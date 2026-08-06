@@ -1,0 +1,127 @@
+<div class="no-print mb-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+  <div>
+    <h1 class="h4 mb-0">Recibo de venta</h1>
+    <p class="text-muted small mb-0">Vista previa · impresión en media hoja carta (8.5" × 5.5")</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a routerLink="/sales" class="btn btn-outline-secondary btn-sm">Volver a ventas</a>
+    <button type="button" class="btn btn-primary btn-sm" [disabled]="!sale()" (click)="print()">
+      <i class="bi bi-printer me-1"></i>
+      Imprimir recibo
+    </button>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger no-print">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <div class="text-muted no-print">Cargando recibo...</div>
+} @else if (sale(); as s) {
+  <div class="receipt-sheet mx-auto bg-white border shadow-sm">
+    <header class="receipt-header text-center border-bottom pb-2 mb-3">
+      <div class="receipt-brand fw-bold">AXIOM</div>
+      <div class="text-uppercase small fw-semibold tracking-wide">Recibo de venta</div>
+      <div class="small text-muted">Documento para el cliente</div>
+    </header>
+
+    <section class="row g-2 small mb-3">
+      <div class="col-6">
+        <div><span class="text-muted">Folio:</span> <strong>{{ s.sale_number }}</strong></div>
+        <div>
+          <span class="text-muted">Fecha:</span>
+          {{ s.sold_at | date: "dd/MM/yyyy HH:mm" }}
+        </div>
+        <div>
+          <span class="text-muted">Estado:</span>
+          {{ s.status }}
+        </div>
+      </div>
+      <div class="col-6 text-end">
+        <div>
+          <span class="text-muted">Cliente:</span>
+          <strong>{{ s.customer_name || 'Público general' }}</strong>
+        </div>
+        <div>
+          <span class="text-muted">Atendió:</span>
+          {{ s.user_name || '—' }}
+        </div>
+      </div>
+    </section>
+
+    <section class="table-responsive mb-2">
+      <table class="table table-sm align-middle mb-0 receipt-table">
+        <thead>
+          <tr class="border-bottom">
+            <th scope="col">Descripción</th>
+            <th scope="col" class="text-end">Cant.</th>
+            <th scope="col" class="text-end">P. unit.</th>
+            <th scope="col" class="text-end">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of s.items; track item.id) {
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ item.product_name || ('Producto #' + item.product_id) }}</div>
+                @if (item.sku) {
+                  <div class="text-muted small">SKU: {{ item.sku }}</div>
+                }
+              </td>
+              <td class="text-end">{{ item.quantity }}</td>
+              <td class="text-end">{{ item.unit_price | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+              <td class="text-end">{{ item.line_total | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="text-center text-muted">Sin productos</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="border-top pt-2 mb-3">
+      <div class="row justify-content-end">
+        <div class="col-7 col-sm-6">
+          <div class="d-flex justify-content-between small">
+            <span class="text-muted">Subtotal</span>
+            <span>{{ s.subtotal | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</span>
+          </div>
+          <div class="d-flex justify-content-between small">
+            <span class="text-muted">Impuesto</span>
+            <span>{{ s.tax | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</span>
+          </div>
+          <div class="d-flex justify-content-between fw-bold border-top mt-1 pt-1">
+            <span>Total</span>
+            <span>{{ s.total | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="small mb-3">
+      <div class="fw-semibold mb-1">Forma de pago</div>
+      @for (payment of s.payments; track payment.id) {
+        <div class="d-flex justify-content-between">
+          <span>{{ paymentLabel(payment.method) }}</span>
+          <span>{{ payment.amount | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</span>
+        </div>
+      } @empty {
+        <div class="text-muted">Sin pagos registrados</div>
+      }
+    </section>
+
+    @if (s.notes) {
+      <section class="small mb-3">
+        <span class="text-muted">Notas:</span> {{ s.notes }}
+      </section>
+    }
+
+    <footer class="receipt-footer text-center border-top pt-2 small text-muted">
+      <div>Gracias por su compra</div>
+      <div>Este documento es un recibo de venta · Axiom POS</div>
+    </footer>
+  </div>
+}

@@ -41,6 +41,13 @@ ng serve
 2. Venta → resta stock si hay existencias  
 3. Sin stock → no permite vender
 
+## Recibo de venta
+
+- Ruta: `/sales/:id/recibo`
+- Formato de impresión: **media hoja carta** (8.5" × 5.5")
+- Al completar una venta se abre el recibo; también desde **Ventas → Recibo**
+- Usa **Imprimir recibo** y, si el navegador lo pide, elige tamaño de página media carta / half letter
+
 ## API
 
 - Base URL: `http://localhost:3000/api` (ver `src/environments/environment.ts`)

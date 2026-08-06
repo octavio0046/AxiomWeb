@@ -8,6 +8,7 @@ import { Products } from './pages/products/products';
 import { Customers } from './pages/customers/customers';
 import { Sales } from './pages/sales/sales';
 import { SaleCreate } from './pages/sale-create/sale-create';
+import { SaleReceipt } from './pages/sale-receipt/sale-receipt';
 import { Users } from './pages/users/users';
 import { Suppliers } from './pages/suppliers/suppliers';
 import { Purchases } from './pages/purchases/purchases';
@@ -67,10 +68,16 @@ export const routes: Routes = [
         canActivate: [permissionGuard('sales.create')],
       },
       {
+        path: 'sales/:id/recibo',
+        component: SaleReceipt,
+        canActivate: [permissionGuard('sales.view', 'sales.create')],
+      },
+      {
         path: 'sales',
         component: Sales,
         canActivate: [permissionGuard('sales.view', 'sales.create')],
       },
+
     ],
   },
   { path: '**', redirectTo: '' },

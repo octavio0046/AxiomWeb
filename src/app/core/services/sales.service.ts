@@ -2,7 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiListResponse, Sale, SaleCreate } from '../models/api.models';
+import {
+  ApiItemResponse,
+  ApiListResponse,
+  Sale,
+  SaleCreate,
+  SaleDetail,
+} from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class SalesService {
@@ -13,6 +19,12 @@ export class SalesService {
     return this.http
       .get<ApiListResponse<Sale>>(this.baseUrl)
       .pipe(map((res) => res.data ?? []));
+  }
+
+  getById(id: number): Observable<SaleDetail> {
+    return this.http
+      .get<ApiItemResponse<SaleDetail>>(`${this.baseUrl}/${id}`)
+      .pipe(map((res) => res.data));
   }
 
   create(payload: SaleCreate): Observable<{

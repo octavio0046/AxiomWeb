@@ -175,10 +175,11 @@ export class SaleCreate implements OnInit {
         payments: [{ method: paymentMethod, amount: total }],
       })
       .subscribe({
-        next: () => {
+        next: (res) => {
           this.saving.set(false);
-          void this.router.navigate(['/sales']);
+          void this.router.navigate(['/sales', res.id, 'recibo']);
         },
+
         error: (err: HttpErrorResponse) => {
           this.saving.set(false);
           this.error.set(err.error?.message || 'No se pudo registrar la venta');
