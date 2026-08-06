@@ -36,7 +36,6 @@ export class Products implements OnInit {
     product_type: ['product' as ProductType, Validators.required],
     price: [0, [Validators.required, Validators.min(0)]],
     cost: [0, [Validators.required, Validators.min(0)]],
-    stock: [0, [Validators.required, Validators.min(0)]],
   });
 
   ngOnInit(): void {
@@ -83,12 +82,13 @@ export class Products implements OnInit {
         product_type: value.product_type,
         price: Number(value.price),
         cost: Number(value.cost),
-        stock: Number(value.stock),
       })
       .subscribe({
         next: () => {
           this.saving.set(false);
-          this.success.set('Producto creado correctamente');
+          this.success.set(
+            'Producto creado con stock 0. Registra una compra para ingresar existencias.'
+          );
           this.form.reset({
             sku: '',
             name: '',
@@ -96,7 +96,6 @@ export class Products implements OnInit {
             product_type: 'product',
             price: 0,
             cost: 0,
-            stock: 0,
           });
           this.load();
         },

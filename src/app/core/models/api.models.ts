@@ -57,7 +57,6 @@ export interface ProductCreate {
   product_type: ProductType;
   price: number;
   cost: number;
-  stock: number;
 }
 
 export interface Customer {
