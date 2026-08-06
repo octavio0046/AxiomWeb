@@ -8,6 +8,13 @@
     display: none !important;
   }
 
+  html,
+  body,
+  app-root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
   main.container {
     max-width: none !important;
     padding: 0 !important;

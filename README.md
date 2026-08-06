@@ -44,9 +44,9 @@ ng serve
 ## Recibo de venta
 
 - Ruta: `/sales/:id/recibo`
-- Formato de impresión: **media hoja carta** (8.5" × 5.5")
+- Formato de impresión: **hoja carta** (8.5" × 11"), recibo solo en la **mitad superior**
 - Al completar una venta se abre el recibo; también desde **Ventas → Recibo**
-- Usa **Imprimir recibo** y, si el navegador lo pide, elige tamaño de página media carta / half letter
+- Usa **Imprimir recibo** con tamaño de papel **Carta / Letter**
 
 ## API
 

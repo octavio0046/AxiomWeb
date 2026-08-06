@@ -1,60 +1,183 @@
-/* Vista previa en pantalla */
+/* Vista previa en pantalla (mitad superior de carta) */
 .receipt-sheet {
   width: 8.5in;
   max-width: 100%;
   min-height: 5.5in;
-  padding: 0.45in 0.5in;
+  padding: 0.22in 0.3in;
   color: #111;
+  font-size: 11px;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+.receipt-header {
+  padding-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .receipt-brand {
-  font-size: 1.6rem;
-  letter-spacing: 0.08em;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+}
+
+.receipt-subtitle {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.receipt-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 9px;
+
+  .lbl {
+    color: #6c757d;
+    margin-right: 4px;
+  }
 }
 
 .receipt-table {
-  font-size: 0.86rem;
+  font-size: 9px;
+  margin-bottom: 2px !important;
 
   th,
   td {
-    padding-top: 0.28rem;
-    padding-bottom: 0.28rem;
+    padding: 0 3px !important;
+    border-bottom-width: 1px;
+    vertical-align: middle;
+    line-height: 1.15;
   }
 
   thead th {
     font-weight: 600;
+    border-bottom: 1px solid #222 !important;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
   }
 }
 
-/* Impresión: media hoja carta (8.5" x 5.5") */
+.receipt-totals {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #ddd;
+  padding-top: 3px;
+  margin-top: 3px;
+}
+
+.totals-box {
+  width: 40%;
+  font-size: 9px;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .total-line {
+    font-weight: 700;
+    border-top: 1px solid #222;
+    margin-top: 2px;
+    padding-top: 2px;
+    font-size: 10px;
+  }
+}
+
+.receipt-payments {
+  margin-top: 3px;
+  font-size: 9px;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.receipt-footer {
+  margin-top: 4px;
+  padding-top: 3px;
+  border-top: 1px solid #ddd;
+  font-size: 8px;
+  color: #6c757d;
+}
+
+/*
+  Impresión: 1 hoja carta.
+  El recibo queda en la mitad superior; sin forzar segunda página.
+*/
 @media print {
   @page {
-    size: 8.5in 5.5in;
-    margin: 0.35in;
+    size: letter portrait;
+    margin: 0.3in;
   }
 
   .no-print {
     display: none !important;
   }
 
-  body {
+  html,
+  body,
+  app-root {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: #fff !important;
+    overflow: visible !important;
+  }
+
+  main.container {
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   .receipt-sheet {
-    width: auto;
-    min-height: auto;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
     margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
     box-shadow: none !important;
-  }
-
-  .receipt-table {
-    font-size: 11pt;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-after: avoid !important;
+    break-inside: avoid !important;
   }
 
   .receipt-brand {
-    font-size: 18pt;
+    font-size: 11pt;
+  }
+
+  .receipt-subtitle,
+  .receipt-meta,
+  .receipt-table,
+  .totals-box,
+  .receipt-payments {
+    font-size: 8pt;
+  }
+
+  .receipt-table th,
+  .receipt-table td {
+    padding: 0 2px !important;
+    line-height: 1.1;
+  }
+
+  .totals-box .total-line {
+    font-size: 9pt;
+  }
+
+  .receipt-footer {
+    font-size: 7.5pt;
   }
 }
