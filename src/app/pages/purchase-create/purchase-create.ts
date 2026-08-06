@@ -1,57 +1,52 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CustomersService } from '../../core/services/customers.service';
 import { ProductsService } from '../../core/services/products.service';
-import { SalesService } from '../../core/services/sales.service';
-import { Customer, PaymentMethod, Product } from '../../core/models/api.models';
+import { PurchasesService } from '../../core/services/purchases.service';
+import { SuppliersService } from '../../core/services/suppliers.service';
+import { Product, Supplier } from '../../core/models/api.models';
 
-interface CartLine {
+interface PurchaseLine {
   product_id: number;
   name: string;
-  price: number;
   quantity: number;
+  unit_cost: number;
 }
 
 @Component({
-  selector: 'app-sale-create',
-  imports: [ReactiveFormsModule, CurrencyPipe],
-  templateUrl: './sale-create.html',
+  selector: 'app-purchase-create',
+  imports: [ReactiveFormsModule, CurrencyPipe, RouterLink],
+  templateUrl: './purchase-create.html',
 })
-export class SaleCreate implements OnInit {
-  private readonly customersService = inject(CustomersService);
+export class PurchaseCreate implements OnInit {
+  private readonly suppliersService = inject(SuppliersService);
   private readonly productsService = inject(ProductsService);
-  private readonly salesService = inject(SalesService);
+  private readonly purchasesService = inject(PurchasesService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
-  protected readonly customers = signal<Customer[]>([]);
+  protected readonly suppliers = signal<Supplier[]>([]);
   protected readonly products = signal<Product[]>([]);
-  protected readonly lines = signal<CartLine[]>([]);
+  protected readonly lines = signal<PurchaseLine[]>([]);
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
   protected readonly error = signal('');
 
-  protected readonly paymentMethods: { value: PaymentMethod; label: string }[] = [
-    { value: 'cash', label: 'Efectivo' },
-    { value: 'card', label: 'Tarjeta' },
-    { value: 'transfer', label: 'Transferencia' },
-  ];
-
   protected readonly form = this.fb.nonNullable.group({
-    customer_id: [''],
+    supplier_id: ['', Validators.required],
     product_id: [''],
-    quantity: [1, [Validators.required, Validators.min(1)]],
-    payment_method: ['cash' as PaymentMethod, Validators.required],
+    quantity: [1, [Validators.required, Validators.min(0.001)]],
+    unit_cost: [0, [Validators.required, Validators.min(0)]],
     tax: [0, [Validators.required, Validators.min(0)]],
+    notes: [''],
   });
 
   protected readonly subtotal = computed(() =>
     Number(
       this.lines()
-        .reduce((sum, line) => sum + line.price * line.quantity, 0)
+        .reduce((sum, line) => sum + line.unit_cost * line.quantity, 0)
         .toFixed(2)
     )
   );
@@ -65,14 +60,16 @@ export class SaleCreate implements OnInit {
   ngOnInit(): void {
     this.loading.set(true);
 
-    this.customersService.list().subscribe({
-      next: (items) => this.customers.set(items),
-      error: () => this.error.set('No se pudieron cargar los clientes'),
+    this.suppliersService.list().subscribe({
+      next: (items) => this.suppliers.set(items.filter((s) => s.is_active !== 0)),
+      error: () => this.error.set('No se pudieron cargar los proveedores'),
     });
 
     this.productsService.list().subscribe({
       next: (items) => {
-        this.products.set(items);
+        this.products.set(
+          items.filter((p) => p.is_active !== 0 && p.product_type !== 'service')
+        );
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
@@ -86,12 +83,26 @@ export class SaleCreate implements OnInit {
     });
   }
 
+  onProductChange(): void {
+    const productId = Number(this.form.controls.product_id.value);
+    const product = this.products().find((p) => p.id === productId);
+    if (product) {
+      this.form.patchValue({ unit_cost: Number(product.cost) || 0 });
+    }
+  }
+
   addLine(): void {
     const productId = Number(this.form.controls.product_id.value);
     const quantity = Number(this.form.controls.quantity.value);
+    const unitCost = Number(this.form.controls.unit_cost.value);
 
     if (!productId || !quantity || quantity <= 0) {
       this.error.set('Selecciona un producto y una cantidad válida');
+      return;
+    }
+
+    if (Number.isNaN(unitCost) || unitCost < 0) {
+      this.error.set('El costo unitario debe ser mayor o igual a 0');
       return;
     }
 
@@ -101,43 +112,28 @@ export class SaleCreate implements OnInit {
       return;
     }
 
-    const currentQty =
-      this.lines().find((line) => line.product_id === productId)?.quantity || 0;
-    const requestedQty = currentQty + quantity;
-    const availableStock = Number(product.stock);
-
-    if (product.product_type !== 'service') {
-      if (availableStock <= 0) {
-        this.error.set(
-          `Sin existencias para "${product.name}". Registra una compra antes de vender.`
-        );
-        return;
-      }
-      if (requestedQty > availableStock) {
-        this.error.set(
-          `Stock insuficiente para "${product.name}". Disponible: ${availableStock}`
-        );
-        return;
-      }
-    }
-
     this.error.set('');
     this.lines.update((current) => {
       const existing = current.find((line) => line.product_id === productId);
       if (existing) {
         return current.map((line) =>
           line.product_id === productId
-            ? { ...line, quantity: line.quantity + quantity }
+            ? {
+                ...line,
+                quantity: line.quantity + quantity,
+                unit_cost: unitCost,
+              }
             : line
         );
       }
+
       return [
         ...current,
         {
           product_id: product.id,
           name: product.name,
-          price: Number(product.price),
           quantity,
+          unit_cost: unitCost,
         },
       ];
     });
@@ -150,38 +146,39 @@ export class SaleCreate implements OnInit {
   }
 
   submit(): void {
-    if (this.lines().length === 0) {
-      this.error.set('Agrega al menos un producto a la venta');
+    if (this.form.controls.supplier_id.invalid) {
+      this.form.controls.supplier_id.markAsTouched();
+      this.error.set('Selecciona un proveedor');
       return;
     }
 
-    const paymentMethod = this.form.controls.payment_method.value;
-    const tax = Number(this.form.controls.tax.value) || 0;
-    const customerRaw = this.form.controls.customer_id.value;
-    const customerId = customerRaw ? Number(customerRaw) : null;
-    const total = this.total();
+    if (this.lines().length === 0) {
+      this.error.set('Agrega al menos un producto a la compra');
+      return;
+    }
 
     this.saving.set(true);
     this.error.set('');
 
-    this.salesService
+    this.purchasesService
       .create({
-        customer_id: customerId,
-        tax,
+        supplier_id: Number(this.form.controls.supplier_id.value),
+        tax: Number(this.form.controls.tax.value) || 0,
+        notes: this.form.controls.notes.value || null,
         items: this.lines().map((line) => ({
           product_id: line.product_id,
           quantity: line.quantity,
+          unit_cost: line.unit_cost,
         })),
-        payments: [{ method: paymentMethod, amount: total }],
       })
       .subscribe({
-        next: () => {
+        next: (res) => {
           this.saving.set(false);
-          void this.router.navigate(['/sales']);
+          void this.router.navigate(['/purchases', res.id]);
         },
         error: (err: HttpErrorResponse) => {
           this.saving.set(false);
-          this.error.set(err.error?.message || 'No se pudo registrar la venta');
+          this.error.set(err.error?.message || 'No se pudo registrar la compra');
         },
       });
   }

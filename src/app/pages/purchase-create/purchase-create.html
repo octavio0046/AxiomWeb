@@ -1,0 +1,168 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Nueva compra</h1>
+    <p class="text-muted mb-0">Ingresa productos y stock desde un proveedor</p>
+  </div>
+  <a routerLink="/purchases" class="btn btn-outline-secondary">Volver a compras</a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <div class="text-muted">Cargando catálogos...</div>
+} @else {
+  <form [formGroup]="form" class="row g-4">
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="h5 card-title">Datos de la compra</h2>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label" for="supplier_id">Proveedor</label>
+              <select id="supplier_id" class="form-select" formControlName="supplier_id">
+                <option value="" disabled>Selecciona un proveedor</option>
+                @for (supplier of suppliers(); track supplier.id) {
+                  <option [value]="supplier.id">{{ supplier.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="tax">Impuesto (Q)</label>
+              <input id="tax" type="number" min="0" step="0.01" class="form-control" formControlName="tax" />
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="notes">Notas</label>
+              <input id="notes" type="text" class="form-control" formControlName="notes" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="h5 card-title">Agregar producto</h2>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+              <label class="form-label" for="product_id">Producto</label>
+              <select
+                id="product_id"
+                class="form-select"
+                formControlName="product_id"
+                (change)="onProductChange()"
+              >
+                <option value="">Selecciona un producto</option>
+                @for (product of products(); track product.id) {
+                  <option [value]="product.id">
+                    {{ product.name }} — stock actual:
+                    {{ product.stock }}
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label" for="quantity">Cantidad</label>
+              <input
+                id="quantity"
+                type="number"
+                min="0.001"
+                step="1"
+                class="form-control"
+                formControlName="quantity"
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="unit_cost">Costo unitario (Q)</label>
+              <input
+                id="unit_cost"
+                type="number"
+                min="0"
+                step="0.01"
+                class="form-control"
+                formControlName="unit_cost"
+              />
+            </div>
+            <div class="col-md-2">
+              <button type="button" class="btn btn-outline-primary w-100" (click)="addLine()">
+                Agregar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th class="text-end">Cantidad</th>
+              <th class="text-end">Costo</th>
+              <th class="text-end">Total línea</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of lines(); track line.product_id) {
+              <tr>
+                <td>{{ line.name }}</td>
+                <td class="text-end">{{ line.quantity }}</td>
+                <td class="text-end">{{ line.unit_cost | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+                <td class="text-end">
+                  {{ line.unit_cost * line.quantity | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+                </td>
+                <td class="text-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="removeLine(line.product_id)"
+                  >
+                    Quitar
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="text-center text-muted">Sin productos en la compra</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h5 card-title">Resumen</h2>
+          <dl class="row mb-0">
+            <dt class="col-6">Subtotal</dt>
+            <dd class="col-6 text-end">{{ subtotal() | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</dd>
+            <dt class="col-6">Impuesto</dt>
+            <dd class="col-6 text-end">{{ taxAmount() | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</dd>
+            <dt class="col-6">Total</dt>
+            <dd class="col-6 text-end fw-semibold">{{ total() | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</dd>
+          </dl>
+          <p class="small text-muted mt-3 mb-3">
+            Al confirmar, se suma el stock y el costo del producto se recalcula con
+            promedio ponderado. El precio de venta no cambia. El costo de esta compra
+            queda en el detalle.
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary w-100"
+            [disabled]="saving() || lines().length === 0"
+            (click)="submit()"
+          >
+            @if (saving()) {
+              Guardando...
+            } @else {
+              Registrar compra
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+}

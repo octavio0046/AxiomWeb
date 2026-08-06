@@ -32,6 +32,14 @@ ng serve
 
 - Productos, Clientes, Ventas, Nueva venta
 - **Usuarios**: crear, editar, activar/desactivar y asignar roles (`/users`)
+- **Proveedores** (`/suppliers`) y **Compras** (`/purchases`, `/purchases/new`): ingreso de stock
+- Las ventas validan existencias (excepto servicios) y descuentan stock
+
+## Inventario
+
+1. Compra → suma stock del producto  
+2. Venta → resta stock si hay existencias  
+3. Sin stock → no permite vender
 
 ## API
 

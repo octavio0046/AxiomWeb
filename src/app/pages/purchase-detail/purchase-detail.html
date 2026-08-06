@@ -1,0 +1,104 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Detalle de compra</h1>
+    <p class="text-muted mb-0">Productos ingresados en esta compra</p>
+  </div>
+  <a routerLink="/purchases" class="btn btn-outline-secondary">Volver a compras</a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <div class="text-muted">Cargando detalle...</div>
+} @else if (purchase(); as p) {
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h5 card-title">Resumen</h2>
+          <dl class="row mb-0">
+            <dt class="col-5">Número</dt>
+            <dd class="col-7">{{ p.purchase_number }}</dd>
+
+            <dt class="col-5">Fecha</dt>
+            <dd class="col-7">{{ p.purchased_at | date: 'short' }}</dd>
+
+            <dt class="col-5">Proveedor</dt>
+            <dd class="col-7">{{ p.supplier_name || '—' }}</dd>
+
+            <dt class="col-5">Usuario</dt>
+            <dd class="col-7">{{ p.user_name || '—' }}</dd>
+
+            <dt class="col-5">Estado</dt>
+            <dd class="col-7">
+              <span class="badge text-bg-secondary">{{ p.status }}</span>
+            </dd>
+
+            <dt class="col-5">Subtotal</dt>
+            <dd class="col-7 text-end">{{ p.subtotal | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</dd>
+
+            <dt class="col-5">Impuesto</dt>
+            <dd class="col-7 text-end">{{ p.tax | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</dd>
+
+            <dt class="col-5">Total</dt>
+            <dd class="col-7 text-end fw-semibold">
+              {{ p.total | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+            </dd>
+          </dl>
+
+          @if (p.notes) {
+            <hr />
+            <p class="mb-0 small">
+              <span class="text-muted">Notas:</span>
+              {{ p.notes }}
+            </p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h5 card-title">Productos comprados</h2>
+          <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Producto</th>
+                  <th class="text-end">Cantidad</th>
+                  <th class="text-end">Costo unitario</th>
+                  <th class="text-end">Total línea</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of p.items; track item.id) {
+                  <tr>
+                    <td>{{ item.sku || '—' }}</td>
+                    <td>{{ item.product_name || ('#' + item.product_id) }}</td>
+                    <td class="text-end">{{ item.quantity }}</td>
+                    <td class="text-end">
+                      {{ item.unit_cost | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+                    </td>
+                    <td class="text-end fw-semibold">
+                      {{ item.line_total | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="text-center text-muted">
+                      Esta compra no tiene productos registrados
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

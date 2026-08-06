@@ -30,6 +30,17 @@
           <a class="nav-link" routerLink="/users" routerLinkActive="active">Usuarios</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" routerLink="/suppliers" routerLinkActive="active">Proveedores</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/purchases" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            Compras
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/purchases/new" routerLinkActive="active">Nueva compra</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" routerLink="/sales" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
             Ventas
           </a>

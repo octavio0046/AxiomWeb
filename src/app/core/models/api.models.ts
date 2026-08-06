@@ -145,3 +145,63 @@ export interface SaleCreate {
   items: SaleItemInput[];
   payments: SalePaymentInput[];
 }
+
+export interface Supplier {
+  id: number;
+  name: string;
+  document_number?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  is_active?: number;
+}
+
+export interface SupplierCreate {
+  name: string;
+  document_number?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+}
+
+export interface Purchase {
+  id: number;
+  purchase_number: string;
+  purchased_at: string;
+  subtotal: number;
+  tax: number;
+  total: number;
+  status: string;
+  supplier_id: number;
+  supplier_name?: string;
+  user_id: number;
+  user_name?: string;
+  notes?: string | null;
+}
+
+export interface PurchaseItem {
+  id: number;
+  product_id: number;
+  sku?: string;
+  product_name?: string;
+  quantity: number;
+  unit_cost: number;
+  line_total: number;
+}
+
+export interface PurchaseDetail extends Purchase {
+  items: PurchaseItem[];
+}
+
+export interface PurchaseItemInput {
+  product_id: number;
+  quantity: number;
+  unit_cost: number;
+}
+
+export interface PurchaseCreate {
+  supplier_id: number;
+  tax: number;
+  notes?: string | null;
+  items: PurchaseItemInput[];
+}
