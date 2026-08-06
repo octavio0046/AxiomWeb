@@ -1,15 +1,10 @@
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+<div class="ax-page-header">
   <div>
-    <h1 class="h3 mb-1">Proveedores</h1>
+    <h1 class="h3">Proveedores</h1>
     <p class="text-muted mb-0">Catálogo de proveedores para compras e ingreso de stock</p>
   </div>
   @if (canManageSuppliers()) {
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#supplierCreateModal"
-    >
+    <button type="button" class="btn btn-primary" (click)="openCreate()">
       <i class="bi bi-plus-lg me-1"></i>
       Nuevo proveedor
     </button>
@@ -81,149 +76,147 @@
   </div>
 }
 
-@if (canManageSuppliers()) {
-  <div
-    class="modal fade"
-    id="supplierCreateModal"
-    tabindex="-1"
-    aria-labelledby="supplierCreateModalLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form [formGroup]="createForm" (ngSubmit)="create()">
-          <div class="modal-header">
-            <h2 class="modal-title h5" id="supplierCreateModalLabel">Nuevo proveedor</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div
+  class="modal fade"
+  id="supplierCreateModal"
+  tabindex="-1"
+  aria-labelledby="supplierCreateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="createForm" (ngSubmit)="create()">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="supplierCreateModalLabel">Nuevo proveedor</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="supplierName">Nombre</label>
+            <input id="supplierName" type="text" class="form-control" formControlName="name" />
           </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label" for="supplierName">Nombre</label>
-              <input id="supplierName" type="text" class="form-control" formControlName="name" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="supplierDoc">NIT / Documento</label>
-              <input
-                id="supplierDoc"
-                type="text"
-                class="form-control"
-                formControlName="document_number"
-              />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="supplierPhone">Teléfono</label>
-              <input id="supplierPhone" type="text" class="form-control" formControlName="phone" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="supplierEmail">Email</label>
-              <input id="supplierEmail" type="email" class="form-control" formControlName="email" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="supplierAddress">Dirección</label>
-              <input
-                id="supplierAddress"
-                type="text"
-                class="form-control"
-                formControlName="address"
-              />
-            </div>
+          <div class="mb-3">
+            <label class="form-label" for="supplierDoc">NIT / Documento</label>
+            <input
+              id="supplierDoc"
+              type="text"
+              class="form-control"
+              formControlName="document_number"
+            />
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-              Cancelar
-            </button>
-            <button type="submit" class="btn btn-primary" [disabled]="saving()">
-              @if (saving()) {
-                Guardando...
-              } @else {
-                Guardar
-              }
-            </button>
+          <div class="mb-3">
+            <label class="form-label" for="supplierPhone">Teléfono</label>
+            <input id="supplierPhone" type="text" class="form-control" formControlName="phone" />
           </div>
-        </form>
-      </div>
+          <div class="mb-3">
+            <label class="form-label" for="supplierEmail">Email</label>
+            <input id="supplierEmail" type="email" class="form-control" formControlName="email" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="supplierAddress">Dirección</label>
+            <input
+              id="supplierAddress"
+              type="text"
+              class="form-control"
+              formControlName="address"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) {
+              Guardando...
+            } @else {
+              Guardar
+            }
+          </button>
+        </div>
+      </form>
     </div>
   </div>
+</div>
 
-  <div
-    class="modal fade"
-    id="supplierEditModal"
-    tabindex="-1"
-    aria-labelledby="supplierEditModalLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form [formGroup]="editForm" (ngSubmit)="update()">
-          <div class="modal-header">
-            <h2 class="modal-title h5" id="supplierEditModalLabel">Editar proveedor</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div
+  class="modal fade"
+  id="supplierEditModal"
+  tabindex="-1"
+  aria-labelledby="supplierEditModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="editForm" (ngSubmit)="update()">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="supplierEditModalLabel">Editar proveedor</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="editSupplierName">Nombre</label>
+            <input id="editSupplierName" type="text" class="form-control" formControlName="name" />
           </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label" for="editSupplierName">Nombre</label>
-              <input id="editSupplierName" type="text" class="form-control" formControlName="name" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="editSupplierDoc">NIT / Documento</label>
-              <input
-                id="editSupplierDoc"
-                type="text"
-                class="form-control"
-                formControlName="document_number"
-              />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="editSupplierPhone">Teléfono</label>
-              <input
-                id="editSupplierPhone"
-                type="text"
-                class="form-control"
-                formControlName="phone"
-              />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="editSupplierEmail">Email</label>
-              <input
-                id="editSupplierEmail"
-                type="email"
-                class="form-control"
-                formControlName="email"
-              />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="editSupplierAddress">Dirección</label>
-              <input
-                id="editSupplierAddress"
-                type="text"
-                class="form-control"
-                formControlName="address"
-              />
-            </div>
-            <div class="form-check">
-              <input
-                id="editSupplierActive"
-                class="form-check-input"
-                type="checkbox"
-                formControlName="is_active"
-              />
-              <label class="form-check-label" for="editSupplierActive">Activo</label>
-            </div>
+          <div class="mb-3">
+            <label class="form-label" for="editSupplierDoc">NIT / Documento</label>
+            <input
+              id="editSupplierDoc"
+              type="text"
+              class="form-control"
+              formControlName="document_number"
+            />
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-              Cancelar
-            </button>
-            <button type="submit" class="btn btn-primary" [disabled]="saving()">
-              @if (saving()) {
-                Guardando...
-              } @else {
-                Guardar cambios
-              }
-            </button>
+          <div class="mb-3">
+            <label class="form-label" for="editSupplierPhone">Teléfono</label>
+            <input
+              id="editSupplierPhone"
+              type="text"
+              class="form-control"
+              formControlName="phone"
+            />
           </div>
-        </form>
-      </div>
+          <div class="mb-3">
+            <label class="form-label" for="editSupplierEmail">Email</label>
+            <input
+              id="editSupplierEmail"
+              type="email"
+              class="form-control"
+              formControlName="email"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editSupplierAddress">Dirección</label>
+            <input
+              id="editSupplierAddress"
+              type="text"
+              class="form-control"
+              formControlName="address"
+            />
+          </div>
+          <div class="form-check">
+            <input
+              id="editSupplierActive"
+              class="form-check-input"
+              type="checkbox"
+              formControlName="is_active"
+            />
+            <label class="form-check-label" for="editSupplierActive">Activo</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) {
+              Guardando...
+            } @else {
+              Guardar cambios
+            }
+          </button>
+        </div>
+      </form>
     </div>
   </div>
-}
+</div>

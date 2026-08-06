@@ -1,113 +1,120 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-semibold" routerLink="/">Axiom</a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#mainNavbar"
-      aria-controls="mainNavbar"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
+<header class="ax-shell">
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid px-3 px-lg-4">
+      <a class="navbar-brand" routerLink="/">Axiom</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNavbar"
+        aria-controls="mainNavbar"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-    <div class="collapse navbar-collapse" id="mainNavbar">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        @if (can('dashboard.view')) {
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-              Inicio
-            </a>
-          </li>
-        }
-        @if (can('products.view', 'products.manage')) {
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/products" routerLinkActive="active">Productos</a>
-          </li>
-        }
-        @if (can('customers.view', 'customers.manage')) {
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/customers" routerLinkActive="active">Clientes</a>
-          </li>
-        }
-        @if (can('users.manage')) {
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/users" routerLinkActive="active">Usuarios</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/roles" routerLinkActive="active">Roles</a>
-          </li>
-        }
-        @if (
-          can(
-            'sales.view',
-            'sales.create',
-            'products.view',
-            'products.manage',
-            'purchases.view',
-            'purchases.create'
-          )
-        ) {
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/reports" routerLinkActive="active">Reportes</a>
-          </li>
-        }
-        @if (can('suppliers.view', 'suppliers.manage')) {
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/suppliers" routerLinkActive="active">Proveedores</a>
-          </li>
-        }
-        @if (can('purchases.view', 'purchases.create')) {
-          <li class="nav-item">
-            <a
-              class="nav-link"
-              routerLink="/purchases"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: true }"
-            >
-              Compras
-            </a>
-          </li>
-        }
-        @if (can('purchases.create')) {
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/purchases/new" routerLinkActive="active">Nueva compra</a>
-          </li>
-        }
-        @if (can('sales.view', 'sales.create')) {
-          <li class="nav-item">
-            <a
-              class="nav-link"
-              routerLink="/sales"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: true }"
-            >
-              Ventas
-            </a>
-          </li>
-        }
-        @if (can('sales.create')) {
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/sales/new" routerLinkActive="active">Nueva venta</a>
-          </li>
-        }
-      </ul>
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
+          @if (can('dashboard.view')) {
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                routerLink="/"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+              >
+                Inicio
+              </a>
+            </li>
+          }
+          @if (can('products.view', 'products.manage')) {
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/products" routerLinkActive="active">Productos</a>
+            </li>
+          }
+          @if (can('customers.view', 'customers.manage')) {
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/customers" routerLinkActive="active">Clientes</a>
+            </li>
+          }
+          @if (can('users.manage')) {
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/users" routerLinkActive="active">Usuarios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/roles" routerLinkActive="active">Roles</a>
+            </li>
+          }
+          @if (
+            can(
+              'sales.view',
+              'sales.create',
+              'products.view',
+              'products.manage',
+              'purchases.view',
+              'purchases.create'
+            )
+          ) {
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/reports" routerLinkActive="active">Reportes</a>
+            </li>
+          }
+          @if (can('suppliers.view', 'suppliers.manage')) {
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/suppliers" routerLinkActive="active">Proveedores</a>
+            </li>
+          }
+          @if (can('purchases.view', 'purchases.create')) {
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                routerLink="/purchases"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+              >
+                Compras
+              </a>
+            </li>
+          }
+          @if (can('purchases.create')) {
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/purchases/new" routerLinkActive="active">Nueva compra</a>
+            </li>
+          }
+          @if (can('sales.view', 'sales.create')) {
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                routerLink="/sales"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+              >
+                Ventas
+              </a>
+            </li>
+          }
+          @if (can('sales.create')) {
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/sales/new" routerLinkActive="active">Nueva venta</a>
+            </li>
+          }
+        </ul>
 
-      <div class="d-flex align-items-center gap-3 text-white">
-        <span class="small">
-          <i class="bi bi-person-circle me-1"></i>
-          {{ displayName() }}
-        </span>
-        <button type="button" class="btn btn-outline-light btn-sm" (click)="logout()">
-          Cerrar sesión
-        </button>
+        <div class="d-flex align-items-center gap-3">
+          <span class="ax-shell__user">
+            <i class="bi bi-person-circle me-1"></i>
+            {{ displayName() }}
+          </span>
+          <button type="button" class="btn btn-outline-light btn-sm" (click)="logout()">
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</nav>
+  </nav>
+</header>
 
-<main class="container py-4">
+<main class="container ax-main">
   <router-outlet />
 </main>

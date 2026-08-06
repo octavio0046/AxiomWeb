@@ -6,10 +6,7 @@ import { CategoriesService } from '../../core/services/categories.service';
 import { ProductsService } from '../../core/services/products.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Category, Product, ProductType } from '../../core/models/api.models';
-
-declare const bootstrap: {
-  Modal: new (el: Element) => { show: () => void; hide: () => void };
-};
+import { hideBootstrapModal, showBootstrapModal } from '../../core/utils/bootstrap-modal';
 
 @Component({
   selector: 'app-products',
@@ -128,6 +125,19 @@ export class Products implements OnInit {
       });
   }
 
+  openCreate(): void {
+    if (!this.canManageProducts()) return;
+    this.createForm.reset({
+      sku: '',
+      name: '',
+      category_id: '',
+      product_type: 'product',
+      price: 0,
+      cost: 0,
+    });
+    this.showModal('productCreateModal');
+  }
+
   openEdit(product: Product): void {
     if (!this.canManageProducts()) return;
 
@@ -186,16 +196,10 @@ export class Products implements OnInit {
   }
 
   private showModal(id: string): void {
-    const el = document.getElementById(id);
-    if (el) {
-      new bootstrap.Modal(el).show();
-    }
+    showBootstrapModal(id);
   }
 
   private hideModal(id: string): void {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const dismissBtn = el.querySelector<HTMLButtonElement>('[data-bs-dismiss="modal"]');
-    dismissBtn?.click();
+    hideBootstrapModal(id);
   }
 }

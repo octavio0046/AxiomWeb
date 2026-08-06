@@ -4,10 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { CustomersService } from '../../core/services/customers.service';
 import { Customer } from '../../core/models/api.models';
-
-declare const bootstrap: {
-  Modal: new (el: Element) => { show: () => void; hide: () => void };
-};
+import { hideBootstrapModal, showBootstrapModal } from '../../core/utils/bootstrap-modal';
 
 @Component({
   selector: 'app-customers',
@@ -103,6 +100,17 @@ export class Customers implements OnInit {
       });
   }
 
+  openCreate(): void {
+    if (!this.canManageCustomers()) return;
+    this.createForm.reset({
+      name: '',
+      document_number: '',
+      phone: '',
+      email: '',
+    });
+    this.showModal('customerCreateModal');
+  }
+
   openEdit(customer: Customer): void {
     if (!this.canManageCustomers()) return;
 
@@ -153,16 +161,10 @@ export class Customers implements OnInit {
   }
 
   private showModal(id: string): void {
-    const el = document.getElementById(id);
-    if (el) {
-      new bootstrap.Modal(el).show();
-    }
+    showBootstrapModal(id);
   }
 
   private hideModal(id: string): void {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const dismissBtn = el.querySelector<HTMLButtonElement>('[data-bs-dismiss="modal"]');
-    dismissBtn?.click();
+    hideBootstrapModal(id);
   }
 }

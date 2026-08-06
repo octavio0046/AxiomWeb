@@ -1,0 +1,63 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.ax-shell {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background: linear-gradient(180deg, var(--ax-brand-soft) 0%, var(--ax-brand) 100%);
+  box-shadow: 0 2px 12px rgba(8, 58, 80, 0.22);
+}
+
+.ax-shell .navbar {
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+.ax-shell .navbar-brand {
+  font-family: var(--ax-display);
+  font-size: 1.55rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: #fff !important;
+}
+
+.ax-shell .nav-link {
+  color: rgba(255, 255, 255, 0.82) !important;
+  font-weight: 650;
+  font-size: 0.93rem;
+  padding: 0.45rem 0.7rem !important;
+  border-radius: 8px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ax-shell .nav-link:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ax-shell .nav-link.active {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.ax-shell .navbar-toggler {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.ax-shell .navbar-toggler:focus {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.ax-shell__user {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.ax-main {
+  padding-top: 1.75rem;
+  padding-bottom: 2.5rem;
+}

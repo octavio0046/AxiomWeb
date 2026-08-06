@@ -1,15 +1,10 @@
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+<div class="ax-page-header">
   <div>
-    <h1 class="h3 mb-1">Clientes</h1>
+    <h1 class="h3">Clientes</h1>
     <p class="text-muted mb-0">Cartera de clientes</p>
   </div>
   @if (canManageCustomers()) {
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#customerCreateModal"
-    >
+    <button type="button" class="btn btn-primary" (click)="openCreate()">
       <i class="bi bi-person-plus me-1"></i>
       Nuevo cliente
     </button>
@@ -81,121 +76,119 @@
   </div>
 }
 
-@if (canManageCustomers()) {
-  <div
-    class="modal fade"
-    id="customerCreateModal"
-    tabindex="-1"
-    aria-labelledby="customerCreateModalLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form [formGroup]="createForm" (ngSubmit)="create()">
-          <div class="modal-header">
-            <h2 class="modal-title h5" id="customerCreateModalLabel">Nuevo cliente</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div
+  class="modal fade"
+  id="customerCreateModal"
+  tabindex="-1"
+  aria-labelledby="customerCreateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="createForm" (ngSubmit)="create()">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="customerCreateModalLabel">Nuevo cliente</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="customerName">Nombre</label>
+            <input id="customerName" type="text" class="form-control" formControlName="name" />
           </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label" for="customerName">Nombre</label>
-              <input id="customerName" type="text" class="form-control" formControlName="name" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="document_number">Documento</label>
-              <input
-                id="document_number"
-                type="text"
-                class="form-control"
-                formControlName="document_number"
-              />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="phone">Teléfono</label>
-              <input id="phone" type="text" class="form-control" formControlName="phone" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="email">Email</label>
-              <input id="email" type="email" class="form-control" formControlName="email" />
-            </div>
+          <div class="mb-3">
+            <label class="form-label" for="document_number">Documento</label>
+            <input
+              id="document_number"
+              type="text"
+              class="form-control"
+              formControlName="document_number"
+            />
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-              Cancelar
-            </button>
-            <button type="submit" class="btn btn-primary" [disabled]="saving()">
-              @if (saving()) {
-                Guardando...
-              } @else {
-                Guardar
-              }
-            </button>
+          <div class="mb-3">
+            <label class="form-label" for="phone">Teléfono</label>
+            <input id="phone" type="text" class="form-control" formControlName="phone" />
           </div>
-        </form>
-      </div>
+          <div class="mb-3">
+            <label class="form-label" for="email">Email</label>
+            <input id="email" type="email" class="form-control" formControlName="email" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) {
+              Guardando...
+            } @else {
+              Guardar
+            }
+          </button>
+        </div>
+      </form>
     </div>
   </div>
+</div>
 
-  <div
-    class="modal fade"
-    id="customerEditModal"
-    tabindex="-1"
-    aria-labelledby="customerEditModalLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form [formGroup]="editForm" (ngSubmit)="update()">
-          <div class="modal-header">
-            <h2 class="modal-title h5" id="customerEditModalLabel">Editar cliente</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div
+  class="modal fade"
+  id="customerEditModal"
+  tabindex="-1"
+  aria-labelledby="customerEditModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="editForm" (ngSubmit)="update()">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="customerEditModalLabel">Editar cliente</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="editCustomerName">Nombre</label>
+            <input id="editCustomerName" type="text" class="form-control" formControlName="name" />
           </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label" for="editCustomerName">Nombre</label>
-              <input id="editCustomerName" type="text" class="form-control" formControlName="name" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="editDocument">Documento</label>
-              <input
-                id="editDocument"
-                type="text"
-                class="form-control"
-                formControlName="document_number"
-              />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="editPhone">Teléfono</label>
-              <input id="editPhone" type="text" class="form-control" formControlName="phone" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="editEmail">Email</label>
-              <input id="editEmail" type="email" class="form-control" formControlName="email" />
-            </div>
-            <div class="form-check">
-              <input
-                id="editCustomerActive"
-                class="form-check-input"
-                type="checkbox"
-                formControlName="is_active"
-              />
-              <label class="form-check-label" for="editCustomerActive">Activo</label>
-            </div>
+          <div class="mb-3">
+            <label class="form-label" for="editDocument">Documento</label>
+            <input
+              id="editDocument"
+              type="text"
+              class="form-control"
+              formControlName="document_number"
+            />
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-              Cancelar
-            </button>
-            <button type="submit" class="btn btn-primary" [disabled]="saving()">
-              @if (saving()) {
-                Guardando...
-              } @else {
-                Guardar cambios
-              }
-            </button>
+          <div class="mb-3">
+            <label class="form-label" for="editPhone">Teléfono</label>
+            <input id="editPhone" type="text" class="form-control" formControlName="phone" />
           </div>
-        </form>
-      </div>
+          <div class="mb-3">
+            <label class="form-label" for="editEmail">Email</label>
+            <input id="editEmail" type="email" class="form-control" formControlName="email" />
+          </div>
+          <div class="form-check">
+            <input
+              id="editCustomerActive"
+              class="form-check-input"
+              type="checkbox"
+              formControlName="is_active"
+            />
+            <label class="form-check-label" for="editCustomerActive">Activo</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) {
+              Guardando...
+            } @else {
+              Guardar cambios
+            }
+          </button>
+        </div>
+      </form>
     </div>
   </div>
-}
+</div>

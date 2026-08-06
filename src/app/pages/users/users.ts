@@ -5,10 +5,7 @@ import { RouterLink } from '@angular/router';
 import { RolesService } from '../../core/services/roles.service';
 import { UsersService } from '../../core/services/users.service';
 import { Role, UserAccount } from '../../core/models/api.models';
-
-declare const bootstrap: {
-  Modal: new (el: Element) => { show: () => void; hide: () => void };
-};
+import { hideBootstrapModal, showBootstrapModal } from '../../core/utils/bootstrap-modal';
 
 @Component({
   selector: 'app-users',
@@ -112,6 +109,18 @@ export class Users implements OnInit {
       });
   }
 
+  openCreate(): void {
+    this.createForm.reset({
+      full_name: '',
+      username: '',
+      email: '',
+      password: '',
+      role_id: '',
+      is_active: true,
+    });
+    this.showModal('userCreateModal');
+  }
+
   openEdit(user: UserAccount): void {
     this.editingUser.set(user);
     this.editForm.reset({
@@ -206,17 +215,10 @@ export class Users implements OnInit {
   }
 
   private showModal(id: string): void {
-    const el = document.getElementById(id);
-    if (el) {
-      new bootstrap.Modal(el).show();
-    }
+    showBootstrapModal(id);
   }
 
   private hideModal(id: string): void {
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    const dismissBtn = el.querySelector<HTMLButtonElement>('[data-bs-dismiss="modal"]');
-    dismissBtn?.click();
+    hideBootstrapModal(id);
   }
 }

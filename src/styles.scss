@@ -1,8 +1,9 @@
-﻿@import "bootstrap/scss/bootstrap";
-@import "bootstrap-icons/font/bootstrap-icons";
+﻿@import "./styles/tokens";
+@import "./styles/app";
 
 /* Oculta chrome de la app al imprimir recibos */
 @media print {
+  .ax-shell,
   .navbar,
   .no-print {
     display: none !important;
@@ -15,6 +16,7 @@
     overflow: visible !important;
   }
 
+  main.ax-main,
   main.container {
     max-width: none !important;
     padding: 0 !important;
