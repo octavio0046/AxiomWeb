@@ -77,6 +77,41 @@ export interface CustomerCreate {
   email?: string | null;
 }
 
+export interface Role {
+  id: number;
+  name: string;
+  description?: string | null;
+}
+
+export interface UserAccount {
+  id: number;
+  username: string;
+  email: string;
+  full_name: string;
+  is_active: number;
+  role_id: number;
+  role_name?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface UserCreate {
+  role_id: number;
+  username: string;
+  email: string;
+  password: string;
+  full_name: string;
+  is_active?: number;
+}
+
+export interface UserUpdate {
+  role_id?: number;
+  email?: string;
+  full_name?: string;
+  is_active?: number;
+  password?: string;
+}
+
 export type PaymentMethod = 'cash' | 'card' | 'transfer';
 
 export interface Sale {

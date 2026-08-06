@@ -28,6 +28,11 @@ ng serve
 - Usuario: `admin`
 - Contraseña: `admin123`
 
+## Módulos
+
+- Productos, Clientes, Ventas, Nueva venta
+- **Usuarios**: crear, editar, activar/desactivar y asignar roles (`/users`)
+
 ## API
 
 - Base URL: `http://localhost:3000/api` (ver `src/environments/environment.ts`)

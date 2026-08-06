@@ -7,6 +7,7 @@ import { Products } from './pages/products/products';
 import { Customers } from './pages/customers/customers';
 import { Sales } from './pages/sales/sales';
 import { SaleCreate } from './pages/sale-create/sale-create';
+import { Users } from './pages/users/users';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -18,9 +19,11 @@ export const routes: Routes = [
       { path: '', component: Home },
       { path: 'products', component: Products },
       { path: 'customers', component: Customers },
+      { path: 'users', component: Users },
       { path: 'sales', component: Sales },
       { path: 'sales/new', component: SaleCreate },
     ],
   },
   { path: '**', redirectTo: '' },
 ];
+
