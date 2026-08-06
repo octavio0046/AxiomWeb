@@ -37,6 +37,20 @@
             <a class="nav-link" routerLink="/users" routerLinkActive="active">Usuarios</a>
           </li>
         }
+        @if (
+          can(
+            'sales.view',
+            'sales.create',
+            'products.view',
+            'products.manage',
+            'purchases.view',
+            'purchases.create'
+          )
+        ) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/reports" routerLinkActive="active">Reportes</a>
+          </li>
+        }
         @if (can('suppliers.view', 'suppliers.manage')) {
           <li class="nav-item">
             <a class="nav-link" routerLink="/suppliers" routerLinkActive="active">Proveedores</a>

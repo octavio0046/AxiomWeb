@@ -41,6 +41,16 @@ ng serve
 2. Venta → resta stock si hay existencias  
 3. Sin stock → no permite vender
 
+## Reportes
+
+Menú **Reportes** (`/reports`) con 3 paneles:
+
+1. **Ventas del período** — totales, ventas por día y productos más vendidos  
+2. **Inventario actual** — stock, valor y alertas (sin stock / bajo)  
+3. **Compras a proveedores** — totales, por proveedor y listado reciente  
+
+Cada pestaña se muestra según permisos del usuario.
+
 ## Recibo de venta
 
 - Ruta: `/sales/:id/recibo`

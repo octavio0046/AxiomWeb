@@ -1,0 +1,361 @@
+<div class="mb-4">
+  <h1 class="h3 mb-1">Reportes</h1>
+  <p class="text-muted mb-0">Indicadores de ventas, inventario y compras</p>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+}
+
+<ul class="nav nav-tabs mb-3">
+  @if (canSales()) {
+    <li class="nav-item">
+      <button
+        type="button"
+        class="nav-link"
+        [class.active]="activeTab() === 'sales'"
+        (click)="selectTab('sales')"
+      >
+        Ventas del período
+      </button>
+    </li>
+  }
+  @if (canInventory()) {
+    <li class="nav-item">
+      <button
+        type="button"
+        class="nav-link"
+        [class.active]="activeTab() === 'inventory'"
+        (click)="selectTab('inventory')"
+      >
+        Inventario actual
+      </button>
+    </li>
+  }
+  @if (canPurchases()) {
+    <li class="nav-item">
+      <button
+        type="button"
+        class="nav-link"
+        [class.active]="activeTab() === 'purchases'"
+        (click)="selectTab('purchases')"
+      >
+        Compras a proveedores
+      </button>
+    </li>
+  }
+</ul>
+
+@if (activeTab() === 'sales' || activeTab() === 'purchases') {
+  <form class="row g-2 align-items-end mb-3" [formGroup]="rangeForm" (ngSubmit)="applyRange()">
+    <div class="col-auto">
+      <label class="form-label mb-0 small" for="from">Desde</label>
+      <input id="from" type="date" class="form-control form-control-sm" formControlName="from" />
+    </div>
+    <div class="col-auto">
+      <label class="form-label mb-0 small" for="to">Hasta</label>
+      <input id="to" type="date" class="form-control form-control-sm" formControlName="to" />
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-sm btn-primary" [disabled]="loading()">Aplicar</button>
+    </div>
+  </form>
+}
+
+@if (loading()) {
+  <div class="text-muted">Cargando reporte...</div>
+}
+
+@if (!loading() && activeTab() === 'sales' && salesData(); as sales) {
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Ventas</div>
+          <div class="fs-4 fw-semibold">{{ sales.summary.sales_count }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Subtotal</div>
+          <div class="fs-5 fw-semibold">
+            {{ sales.summary.subtotal | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Impuesto</div>
+          <div class="fs-5 fw-semibold">
+            {{ sales.summary.tax | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Total vendido</div>
+          <div class="fs-5 fw-semibold">
+            {{ sales.summary.total | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <h2 class="h6">Ventas por día</h2>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th class="text-end">#</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (day of sales.by_day; track day.sale_date) {
+              <tr>
+                <td>{{ day.sale_date | date: 'mediumDate' }}</td>
+                <td class="text-end">{{ day.sales_count }}</td>
+                <td class="text-end">{{ day.total | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="text-center text-muted">Sin ventas en el período</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <h2 class="h6">Productos más vendidos</h2>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Producto</th>
+              <th class="text-end">Cant.</th>
+              <th class="text-end">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of sales.top_products; track item.id) {
+              <tr>
+                <td>{{ item.sku }}</td>
+                <td>{{ item.name }}</td>
+                <td class="text-end">{{ item.quantity_sold }}</td>
+                <td class="text-end">
+                  {{ item.amount_sold | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="text-center text-muted">Sin movimientos</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
+
+@if (!loading() && activeTab() === 'inventory' && inventoryData(); as inv) {
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Productos activos</div>
+          <div class="fs-4 fw-semibold">{{ inv.summary.products_count }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Unidades en stock</div>
+          <div class="fs-4 fw-semibold">{{ inv.summary.total_units }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Valor inventario</div>
+          <div class="fs-5 fw-semibold">
+            {{ inv.summary.inventory_value | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Sin stock / Bajo</div>
+          <div class="fs-5 fw-semibold">
+            {{ inv.summary.out_of_stock }} / {{ inv.summary.low_stock }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-sm table-striped table-hover align-middle">
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th class="text-end">Stock</th>
+          <th class="text-end">Costo</th>
+          <th class="text-end">Valor</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of inv.items; track item.id) {
+          <tr>
+            <td>{{ item.sku }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.category_name }}</td>
+            <td class="text-end">{{ item.stock }}</td>
+            <td class="text-end">{{ item.cost | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+            <td class="text-end">
+              {{ item.inventory_value | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+            </td>
+            <td>
+              <span class="badge" [class]="stockBadge(item.stock_status)">
+                {{ stockLabel(item.stock_status) }}
+              </span>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="text-center text-muted">Sin productos</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (!loading() && activeTab() === 'purchases' && purchasesData(); as pur) {
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Compras</div>
+          <div class="fs-4 fw-semibold">{{ pur.summary.purchases_count }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Subtotal</div>
+          <div class="fs-5 fw-semibold">
+            {{ pur.summary.subtotal | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Impuesto</div>
+          <div class="fs-5 fw-semibold">
+            {{ pur.summary.tax | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Total comprado</div>
+          <div class="fs-5 fw-semibold">
+            {{ pur.summary.total | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <h2 class="h6">Por proveedor</h2>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Proveedor</th>
+              <th class="text-end">#</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of pur.by_supplier; track row.id) {
+              <tr>
+                <td>{{ row.supplier_name }}</td>
+                <td class="text-end">{{ row.purchases_count }}</td>
+                <td class="text-end">{{ row.total | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="text-center text-muted">Sin compras en el período</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <h2 class="h6">Compras recientes</h2>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Número</th>
+              <th>Fecha</th>
+              <th>Proveedor</th>
+              <th>Usuario</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of pur.recent; track row.id) {
+              <tr>
+                <td>{{ row.purchase_number }}</td>
+                <td>{{ row.purchased_at | date: 'short' }}</td>
+                <td>{{ row.supplier_name }}</td>
+                <td>{{ row.user_name }}</td>
+                <td class="text-end">{{ row.total | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="text-center text-muted">Sin compras</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
+
+@if (!canSales() && !canInventory() && !canPurchases()) {
+  <div class="alert alert-warning">No tienes permisos para ver reportes.</div>
+}

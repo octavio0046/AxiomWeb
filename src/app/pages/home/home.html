@@ -101,4 +101,27 @@
       </div>
     </div>
   }
+
+  @if (
+    can(
+      'sales.view',
+      'sales.create',
+      'products.view',
+      'products.manage',
+      'purchases.view',
+      'purchases.create'
+    )
+  ) {
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5 card-title">
+            <i class="bi bi-graph-up me-2"></i>Reportes
+          </h2>
+          <p class="card-text text-muted">Ventas, inventario y compras a proveedores.</p>
+          <a routerLink="/reports" class="btn btn-outline-primary btn-sm">Ver reportes</a>
+        </div>
+      </div>
+    </div>
+  }
 </div>

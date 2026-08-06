@@ -14,6 +14,7 @@ import { Suppliers } from './pages/suppliers/suppliers';
 import { Purchases } from './pages/purchases/purchases';
 import { PurchaseCreate } from './pages/purchase-create/purchase-create';
 import { PurchaseDetailPage } from './pages/purchase-detail/purchase-detail';
+import { Reports } from './pages/reports/reports';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -42,6 +43,21 @@ export const routes: Routes = [
         component: Users,
         canActivate: [permissionGuard('users.manage')],
       },
+      {
+        path: 'reports',
+        component: Reports,
+        canActivate: [
+          permissionGuard(
+            'sales.view',
+            'sales.create',
+            'products.view',
+            'products.manage',
+            'purchases.view',
+            'purchases.create'
+          ),
+        ],
+      },
+
       {
         path: 'suppliers',
         component: Suppliers,
