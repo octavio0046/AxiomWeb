@@ -1,0 +1,54 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-0">Ventas</h1>
+    <p class="text-muted mb-0">Historial de ventas</p>
+  </div>
+  <a routerLink="/sales/new" class="btn btn-primary">
+    <i class="bi bi-cart-plus me-1"></i>Nueva venta
+  </a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <div class="text-muted">Cargando ventas...</div>
+} @else {
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead>
+        <tr>
+          <th>Folio</th>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Usuario</th>
+          <th>Estado</th>
+          <th class="text-end">Subtotal</th>
+          <th class="text-end">Impuesto</th>
+          <th class="text-end">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (sale of sales(); track sale.id) {
+          <tr>
+            <td>{{ sale.sale_number }}</td>
+            <td>{{ sale.sold_at | date: 'short' }}</td>
+            <td>{{ sale.customer_name || 'Público general' }}</td>
+            <td>{{ sale.user_name }}</td>
+            <td>
+              <span class="badge text-bg-secondary">{{ sale.status }}</span>
+            </td>
+            <td class="text-end">{{ sale.subtotal | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+            <td class="text-end">{{ sale.tax | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+            <td class="text-end fw-semibold">{{ sale.total | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="8" class="text-center text-muted">No hay ventas registradas</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

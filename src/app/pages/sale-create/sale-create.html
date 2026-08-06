@@ -1,0 +1,150 @@
+<div class="mb-4">
+  <h1 class="h3 mb-1">Nueva venta</h1>
+  <p class="text-muted mb-0">Selecciona cliente, productos y método de pago</p>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <div class="text-muted">Cargando datos...</div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h2 class="h5">Cliente</h2>
+            <select class="form-select" formControlName="customer_id">
+              <option value="">Público general</option>
+              @for (customer of customers(); track customer.id) {
+                <option [value]="customer.id">{{ customer.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <h2 class="h5">Agregar producto</h2>
+            <div class="row g-2 align-items-end">
+              <div class="col-md-7">
+                <label class="form-label" for="product_id">Producto</label>
+                <select id="product_id" class="form-select" formControlName="product_id">
+                  <option value="">Selecciona un producto</option>
+                  @for (product of products(); track product.id) {
+                    <option [value]="product.id">
+                      {{ product.name }} — {{ product.price | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }} (stock:
+                      {{ product.stock }})
+                    </option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="quantity">Cantidad</label>
+                <input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  class="form-control"
+                  formControlName="quantity"
+                />
+              </div>
+              <div class="col-md-2">
+                <button type="button" class="btn btn-outline-primary w-100" (click)="addLine()">
+                  Agregar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th class="text-end">Precio</th>
+                <th class="text-end">Cantidad</th>
+                <th class="text-end">Importe</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of lines(); track line.product_id) {
+                <tr>
+                  <td>{{ line.name }}</td>
+                  <td class="text-end">{{ line.price | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+                  <td class="text-end">{{ line.quantity }}</td>
+                  <td class="text-end">{{ line.price * line.quantity | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+                  <td class="text-end">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="removeLine(line.product_id)"
+                    >
+                      Quitar
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="text-center text-muted">Sin productos en la venta</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="h5">Pago</h2>
+
+            <div class="mb-3">
+              <label class="form-label" for="tax">Impuesto</label>
+              <input
+                id="tax"
+                type="number"
+                min="0"
+                step="0.01"
+                class="form-control"
+                formControlName="tax"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="payment_method">Método de pago</label>
+              <select id="payment_method" class="form-select" formControlName="payment_method">
+                @for (method of paymentMethods; track method.value) {
+                  <option [value]="method.value">{{ method.label }}</option>
+                }
+              </select>
+            </div>
+
+            <dl class="row mb-3">
+              <dt class="col-6">Subtotal</dt>
+              <dd class="col-6 text-end">{{ subtotal() | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</dd>
+              <dt class="col-6">Impuesto</dt>
+              <dd class="col-6 text-end">{{ taxAmount() | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</dd>
+              <dt class="col-6">Total</dt>
+              <dd class="col-6 text-end fw-semibold">{{ total() | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</dd>
+              <dt class="col-6">Monto a pagar</dt>
+              <dd class="col-6 text-end">{{ total() | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</dd>
+            </dl>
+
+            <button type="submit" class="btn btn-primary w-100" [disabled]="saving() || lines().length === 0">
+              @if (saving()) {
+                Registrando...
+              } @else {
+                Registrar venta
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+}

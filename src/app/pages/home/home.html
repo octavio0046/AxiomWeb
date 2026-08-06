@@ -1,0 +1,54 @@
+<div class="mb-4">
+  <h1 class="h3 mb-1">Bienvenido, {{ displayName() }}</h1>
+  <p class="text-muted mb-0">Panel principal del punto de venta Axiom.</p>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 card-title">
+          <i class="bi bi-box-seam me-2"></i>Productos
+        </h2>
+        <p class="card-text text-muted">Consulta y registra productos del inventario.</p>
+        <a routerLink="/products" class="btn btn-outline-primary btn-sm">Ir a productos</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 card-title">
+          <i class="bi bi-people me-2"></i>Clientes
+        </h2>
+        <p class="card-text text-muted">Administra la cartera de clientes.</p>
+        <a routerLink="/customers" class="btn btn-outline-primary btn-sm">Ir a clientes</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 card-title">
+          <i class="bi bi-receipt me-2"></i>Ventas
+        </h2>
+        <p class="card-text text-muted">Revisa el historial de ventas registradas.</p>
+        <a routerLink="/sales" class="btn btn-outline-primary btn-sm">Ir a ventas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 card-title">
+          <i class="bi bi-cart-plus me-2"></i>Nueva venta
+        </h2>
+        <p class="card-text text-muted">Crea una venta con productos y pago.</p>
+        <a routerLink="/sales/new" class="btn btn-primary btn-sm">Crear venta</a>
+      </div>
+    </div>
+  </div>
+</div>
