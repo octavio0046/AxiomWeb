@@ -1,5 +1,5 @@
-﻿@import "./styles/tokens";
-@import "./styles/app";
+﻿@use "./styles/tokens";
+@use "./styles/app";
 
 /* Oculta chrome de la app al imprimir recibos */
 @media print {
