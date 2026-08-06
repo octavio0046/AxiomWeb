@@ -11,6 +11,14 @@ export interface LoginResponse {
   ok: boolean;
   token: string;
   user: AuthUser;
+  permissions?: string[];
+  message?: string;
+}
+
+export interface MeResponse {
+  ok: boolean;
+  user: AuthUser;
+  permissions?: string[];
   message?: string;
 }
 

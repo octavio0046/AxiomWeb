@@ -194,7 +194,9 @@ export class Users implements OnInit {
       case 'admin':
         return 'Administrador';
       case 'cashier':
-        return 'Cajero';
+        return 'Vendedor';
+      case 'purchaser':
+        return 'Comprador';
       case 'supervisor':
         return 'Supervisor';
       default:

@@ -4,6 +4,7 @@ import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CategoriesService } from '../../core/services/categories.service';
 import { ProductsService } from '../../core/services/products.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Category, Product, ProductType } from '../../core/models/api.models';
 
 @Component({
@@ -14,7 +15,12 @@ import { Category, Product, ProductType } from '../../core/models/api.models';
 export class Products implements OnInit {
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
+  private readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
+
+  protected canManageProducts(): boolean {
+    return this.auth.hasPermission('products.manage');
+  }
 
   protected readonly products = signal<Product[]>([]);
   protected readonly categories = signal<Category[]>([]);

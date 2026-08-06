@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { permissionGuard } from './core/guards/permission.guard';
 import { Shell } from './layout/shell/shell';
 import { Login } from './pages/login/login';
 import { Home } from './pages/home/home';
@@ -20,20 +21,57 @@ export const routes: Routes = [
     component: Shell,
     canActivate: [authGuard],
     children: [
-      { path: '', component: Home },
-      { path: 'products', component: Products },
-      { path: 'customers', component: Customers },
-      { path: 'users', component: Users },
-      { path: 'suppliers', component: Suppliers },
-      { path: 'purchases/new', component: PurchaseCreate },
-      { path: 'purchases/:id', component: PurchaseDetailPage },
-      { path: 'purchases', component: Purchases },
-      { path: 'sales/new', component: SaleCreate },
-      { path: 'sales', component: Sales },
+      {
+        path: '',
+        component: Home,
+        canActivate: [permissionGuard('dashboard.view')],
+      },
+      {
+        path: 'products',
+        component: Products,
+        canActivate: [permissionGuard('products.view', 'products.manage')],
+      },
+      {
+        path: 'customers',
+        component: Customers,
+        canActivate: [permissionGuard('customers.view', 'customers.manage')],
+      },
+      {
+        path: 'users',
+        component: Users,
+        canActivate: [permissionGuard('users.manage')],
+      },
+      {
+        path: 'suppliers',
+        component: Suppliers,
+        canActivate: [permissionGuard('suppliers.view', 'suppliers.manage')],
+      },
+      {
+        path: 'purchases/new',
+        component: PurchaseCreate,
+        canActivate: [permissionGuard('purchases.create')],
+      },
+      {
+        path: 'purchases/:id',
+        component: PurchaseDetailPage,
+        canActivate: [permissionGuard('purchases.view', 'purchases.create')],
+      },
+      {
+        path: 'purchases',
+        component: Purchases,
+        canActivate: [permissionGuard('purchases.view', 'purchases.create')],
+      },
+      {
+        path: 'sales/new',
+        component: SaleCreate,
+        canActivate: [permissionGuard('sales.create')],
+      },
+      {
+        path: 'sales',
+        component: Sales,
+        canActivate: [permissionGuard('sales.view', 'sales.create')],
+      },
     ],
   },
   { path: '**', redirectTo: '' },
 ];
-
-
-

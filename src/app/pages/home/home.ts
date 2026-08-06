@@ -14,4 +14,8 @@ export class Home {
     const user = this.auth.currentUser();
     return user?.full_name || user?.username || 'Usuario';
   }
+
+  can(...codes: string[]): boolean {
+    return this.auth.hasPermission(...codes);
+  }
 }
