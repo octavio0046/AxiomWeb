@@ -1,8 +1,18 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { CustomersService } from '../../core/services/customers.service';
 import { ProductsService } from '../../core/services/products.service';
 import { SalesService } from '../../core/services/sales.service';
@@ -19,16 +29,24 @@ interface CartLine {
   selector: 'app-sale-create',
   imports: [ReactiveFormsModule, CurrencyPipe],
   templateUrl: './sale-create.html',
+  styleUrl: './sale-create.scss',
 })
-export class SaleCreate implements OnInit {
+export class SaleCreate implements OnInit, OnDestroy {
   private readonly customersService = inject(CustomersService);
   private readonly productsService = inject(ProductsService);
   private readonly salesService = inject(SalesService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly destroy$ = new Subject<void>();
+  private readonly productSearch$ = new Subject<string>();
 
   protected readonly customers = signal<Customer[]>([]);
-  protected readonly products = signal<Product[]>([]);
+  protected readonly productResults = signal<Product[]>([]);
+  protected readonly selectedProduct = signal<Product | null>(null);
+  protected readonly productQuery = signal('');
+  protected readonly showProductMenu = signal(false);
+  protected readonly searchingProducts = signal(false);
   protected readonly lines = signal<CartLine[]>([]);
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
@@ -42,7 +60,6 @@ export class SaleCreate implements OnInit {
 
   protected readonly form = this.fb.nonNullable.group({
     customer_id: [''],
-    product_id: [''],
     quantity: [1, [Validators.required, Validators.min(1)]],
     payment_method: ['cash' as PaymentMethod, Validators.required],
     tax: [0, [Validators.required, Validators.min(0)]],
@@ -66,44 +83,84 @@ export class SaleCreate implements OnInit {
     this.loading.set(true);
 
     this.customersService.list().subscribe({
-      next: (items) => this.customers.set(items),
-      error: () => this.error.set('No se pudieron cargar los clientes'),
-    });
-
-    this.productsService.list().subscribe({
       next: (items) => {
-        // Solo productos activos se pueden vender
-        this.products.set(items.filter((p) => p.is_active !== 0));
+        this.customers.set(items.filter((c) => c.is_active !== 0));
         this.loading.set(false);
       },
-      error: (err: HttpErrorResponse) => {
+      error: () => {
         this.loading.set(false);
-        this.error.set(err.error?.message || 'No se pudieron cargar los productos');
+        this.error.set('No se pudieron cargar los clientes');
       },
     });
 
-    this.form.controls.tax.valueChanges.subscribe((value) => {
-      this.taxAmount.set(Number(value) || 0);
-    });
+    this.productSearch$
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((value) => {
+        this.productQuery.set(value);
+        this.searchProducts(value);
+      });
+
+    this.searchProducts('');
+
+    this.form.controls.tax.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        this.taxAmount.set(Number(value) || 0);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.host.nativeElement.contains(event.target as Node)) {
+      this.showProductMenu.set(false);
+    }
+  }
+
+  onProductSearchInput(value: string): void {
+    if (this.selectedProduct() && value !== this.selectedProductLabel(this.selectedProduct()!)) {
+      this.selectedProduct.set(null);
+    }
+    this.showProductMenu.set(true);
+    this.productSearch$.next(value);
+  }
+
+  openProductMenu(): void {
+    this.showProductMenu.set(true);
+    if (!this.productResults().length) {
+      this.searchProducts(this.productQuery());
+    }
+  }
+
+  selectProduct(product: Product): void {
+    this.selectedProduct.set(product);
+    this.productQuery.set(this.selectedProductLabel(product));
+    this.showProductMenu.set(false);
+    this.error.set('');
+  }
+
+  clearSelectedProduct(): void {
+    this.selectedProduct.set(null);
+    this.productQuery.set('');
+    this.showProductMenu.set(false);
+    this.searchProducts('');
   }
 
   addLine(): void {
-    const productId = Number(this.form.controls.product_id.value);
+    const product = this.selectedProduct();
     const quantity = Number(this.form.controls.quantity.value);
 
-    if (!productId || !quantity || quantity <= 0) {
+    if (!product || !quantity || quantity <= 0) {
       this.error.set('Selecciona un producto y una cantidad válida');
       return;
     }
 
-    const product = this.products().find((p) => p.id === productId);
-    if (!product) {
-      this.error.set('Producto no encontrado');
-      return;
-    }
-
     const currentQty =
-      this.lines().find((line) => line.product_id === productId)?.quantity || 0;
+      this.lines().find((line) => line.product_id === product.id)?.quantity || 0;
     const requestedQty = currentQty + quantity;
     const availableStock = Number(product.stock);
 
@@ -124,10 +181,10 @@ export class SaleCreate implements OnInit {
 
     this.error.set('');
     this.lines.update((current) => {
-      const existing = current.find((line) => line.product_id === productId);
+      const existing = current.find((line) => line.product_id === product.id);
       if (existing) {
         return current.map((line) =>
-          line.product_id === productId
+          line.product_id === product.id
             ? { ...line, quantity: line.quantity + quantity }
             : line
         );
@@ -143,7 +200,8 @@ export class SaleCreate implements OnInit {
       ];
     });
 
-    this.form.patchValue({ product_id: '', quantity: 1 });
+    this.form.patchValue({ quantity: 1 });
+    this.clearSelectedProduct();
   }
 
   removeLine(productId: number): void {
@@ -180,11 +238,36 @@ export class SaleCreate implements OnInit {
           this.saving.set(false);
           void this.router.navigate(['/sales', res.id, 'recibo']);
         },
-
         error: (err: HttpErrorResponse) => {
           this.saving.set(false);
           this.error.set(err.error?.message || 'No se pudo registrar la venta');
         },
       });
+  }
+
+  private searchProducts(query: string): void {
+    this.searchingProducts.set(true);
+    this.productsService
+      .listPaged({
+        q: query.trim(),
+        field: 'all',
+        page: 1,
+        pageSize: 10,
+        active: 1,
+      })
+      .subscribe({
+        next: (res) => {
+          this.productResults.set(res.data ?? []);
+          this.searchingProducts.set(false);
+        },
+        error: () => {
+          this.productResults.set([]);
+          this.searchingProducts.set(false);
+        },
+      });
+  }
+
+  private selectedProductLabel(product: Product): string {
+    return `${product.sku} — ${product.name}`;
   }
 }

@@ -30,7 +30,14 @@
             </div>
             <div class="col-md-4">
               <label class="form-label" for="tax">Impuesto (Q)</label>
-              <input id="tax" type="number" min="0" step="0.01" class="form-control" formControlName="tax" />
+              <input
+                id="tax"
+                type="number"
+                min="0"
+                step="0.01"
+                class="form-control"
+                formControlName="tax"
+              />
             </div>
             <div class="col-12">
               <label class="form-label" for="notes">Notas</label>
@@ -45,21 +52,68 @@
           <h2 class="h5 card-title">Agregar producto</h2>
           <div class="row g-3 align-items-end">
             <div class="col-md-5">
-              <label class="form-label" for="product_id">Producto</label>
-              <select
-                id="product_id"
-                class="form-select"
-                formControlName="product_id"
-                (change)="onProductChange()"
-              >
-                <option value="">Selecciona un producto</option>
-                @for (product of products(); track product.id) {
-                  <option [value]="product.id">
-                    {{ product.name }} — stock actual:
-                    {{ product.stock }}
-                  </option>
+              <label class="form-label" for="productSearch">Producto</label>
+              <div class="product-picker">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input
+                    id="productSearch"
+                    type="search"
+                    class="form-control"
+                    placeholder="Buscar por SKU, nombre o categoría..."
+                    autocomplete="off"
+                    [value]="productQuery()"
+                    (focus)="openProductMenu()"
+                    (input)="onProductSearchInput($any($event.target).value)"
+                  />
+                  @if (selectedProduct() || productQuery()) {
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="clearSelectedProduct()"
+                      title="Limpiar"
+                    >
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  }
+                </div>
+
+                @if (showProductMenu()) {
+                  <div class="product-picker__menu">
+                    @if (searchingProducts()) {
+                      <div class="product-picker__empty">Buscando...</div>
+                    } @else if (productResults().length === 0) {
+                      <div class="product-picker__empty">Sin productos para comprar</div>
+                    } @else {
+                      @for (product of productResults(); track product.id) {
+                        <button
+                          type="button"
+                          class="product-picker__item"
+                          (click)="selectProduct(product)"
+                        >
+                          <span class="product-picker__name">
+                            <strong>{{ product.sku }}</strong> — {{ product.name }}
+                          </span>
+                          <span class="product-picker__meta">
+                            costo ref.
+                            {{ product.cost | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+                            · stock {{ product.stock }}
+                          </span>
+                        </button>
+                      }
+                      <div class="product-picker__hint">
+                        Máximo 10 resultados (sin servicios)
+                      </div>
+                    }
+                  </div>
                 }
-              </select>
+              </div>
+              @if (selectedProduct(); as selected) {
+                <div class="small text-muted mt-1">
+                  Seleccionado: <strong>{{ selected.name }}</strong> (stock actual
+                  {{ selected.stock }})
+                </div>
+              }
             </div>
             <div class="col-md-2">
               <label class="form-label" for="quantity">Cantidad</label>
@@ -108,7 +162,9 @@
               <tr>
                 <td>{{ line.name }}</td>
                 <td class="text-end">{{ line.quantity }}</td>
-                <td class="text-end">{{ line.unit_cost | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</td>
+                <td class="text-end">
+                  {{ line.unit_cost | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
+                </td>
                 <td class="text-end">
                   {{ line.unit_cost * line.quantity | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}
                 </td>
@@ -145,9 +201,8 @@
             <dd class="col-6 text-end fw-semibold">{{ total() | currency: 'GTQ':'symbol':'1.2-2':'es-GT' }}</dd>
           </dl>
           <p class="small text-muted mt-3 mb-3">
-            Al confirmar, se suma el stock y el costo del producto se recalcula con
-            promedio ponderado. El precio de venta no cambia. El costo de esta compra
-            queda en el detalle.
+            Al confirmar, se suma el stock y el costo del producto se recalcula con promedio
+            ponderado. El precio de venta no cambia. El costo de esta compra queda en el detalle.
           </p>
           <button
             type="button"
