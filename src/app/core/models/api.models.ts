@@ -60,6 +60,36 @@ export interface ProductListParams {
   category_id?: number;
 }
 
+export type SaleSearchField =
+  | 'all'
+  | 'sale_number'
+  | 'customer'
+  | 'user'
+  | 'status'
+  | 'total';
+
+export interface SaleListParams {
+  q?: string;
+  field?: SaleSearchField;
+  page?: number;
+  pageSize?: number;
+}
+
+export type PurchaseSearchField =
+  | 'all'
+  | 'purchase_number'
+  | 'supplier'
+  | 'user'
+  | 'status'
+  | 'total';
+
+export interface PurchaseListParams {
+  q?: string;
+  field?: PurchaseSearchField;
+  page?: number;
+  pageSize?: number;
+}
+
 export interface ApiItemResponse<T> {
   ok: boolean;
   data: T;
