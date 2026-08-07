@@ -113,6 +113,33 @@
   <div class="row g-4">
     <div class="col-lg-5">
       <h2 class="h6">Ventas por día</h2>
+      <div class="input-group input-group-sm mb-2">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input
+          type="search"
+          class="form-control"
+          placeholder="Buscar fecha o total..."
+          [value]="salesDayQuery()"
+          (input)="onSalesDaySearch($any($event.target).value)"
+        />
+      </div>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <div class="small text-muted">{{ salesByDayPaged().rangeLabel }}</div>
+        <div class="d-flex align-items-center gap-2">
+          <label class="small text-muted mb-0" for="salesDayPageSize">Por página</label>
+          <select
+            id="salesDayPageSize"
+            class="form-select form-select-sm"
+            style="width: 4.75rem; min-width: 4.75rem"
+            [value]="salesDayPageSize()"
+            (change)="onSalesDayPageSize($any($event.target).value)"
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+      </div>
       <div class="table-responsive">
         <table class="table table-sm table-striped align-middle">
           <thead>
@@ -123,7 +150,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (day of sales.by_day; track day.sale_date) {
+            @for (day of salesByDayPaged().items; track day.sale_date) {
               <tr>
                 <td>{{ day.sale_date | date: 'mediumDate' }}</td>
                 <td class="text-end">{{ day.sales_count }}</td>
@@ -131,16 +158,67 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="3" class="text-center text-muted">Sin ventas en el período</td>
+                <td colspan="3" class="text-center text-muted">Sin resultados</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
+      @if (salesByDayPaged().totalPages > 1) {
+        <nav class="mt-2" aria-label="Paginación ventas por día">
+          <ul class="pagination pagination-sm justify-content-center mb-0">
+            <li class="page-item" [class.disabled]="salesByDayPaged().page <= 1">
+              <button type="button" class="page-link" (click)="goSalesDayPage(salesByDayPaged().page - 1)">
+                Anterior
+              </button>
+            </li>
+            @for (n of salesByDayPaged().pageNumbers; track n) {
+              <li class="page-item" [class.active]="n === salesByDayPaged().page">
+                <button type="button" class="page-link" (click)="goSalesDayPage(n)">{{ n }}</button>
+              </li>
+            }
+            <li
+              class="page-item"
+              [class.disabled]="salesByDayPaged().page >= salesByDayPaged().totalPages"
+            >
+              <button type="button" class="page-link" (click)="goSalesDayPage(salesByDayPaged().page + 1)">
+                Siguiente
+              </button>
+            </li>
+          </ul>
+        </nav>
+      }
     </div>
 
     <div class="col-lg-7">
       <h2 class="h6">Productos más vendidos</h2>
+      <div class="input-group input-group-sm mb-2">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input
+          type="search"
+          class="form-control"
+          placeholder="Buscar SKU o producto..."
+          [value]="salesTopQuery()"
+          (input)="onSalesTopSearch($any($event.target).value)"
+        />
+      </div>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <div class="small text-muted">{{ salesTopPaged().rangeLabel }}</div>
+        <div class="d-flex align-items-center gap-2">
+          <label class="small text-muted mb-0" for="salesTopPageSize">Por página</label>
+          <select
+            id="salesTopPageSize"
+            class="form-select form-select-sm"
+            style="width: 4.75rem; min-width: 4.75rem"
+            [value]="salesTopPageSize()"
+            (change)="onSalesTopPageSize($any($event.target).value)"
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+      </div>
       <div class="table-responsive">
         <table class="table table-sm table-striped align-middle">
           <thead>
@@ -152,7 +230,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (item of sales.top_products; track item.id) {
+            @for (item of salesTopPaged().items; track item.id) {
               <tr>
                 <td>{{ item.sku }}</td>
                 <td>{{ item.name }}</td>
@@ -163,12 +241,36 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="4" class="text-center text-muted">Sin movimientos</td>
+                <td colspan="4" class="text-center text-muted">Sin resultados</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
+      @if (salesTopPaged().totalPages > 1) {
+        <nav class="mt-2" aria-label="Paginación productos más vendidos">
+          <ul class="pagination pagination-sm justify-content-center mb-0">
+            <li class="page-item" [class.disabled]="salesTopPaged().page <= 1">
+              <button type="button" class="page-link" (click)="goSalesTopPage(salesTopPaged().page - 1)">
+                Anterior
+              </button>
+            </li>
+            @for (n of salesTopPaged().pageNumbers; track n) {
+              <li class="page-item" [class.active]="n === salesTopPaged().page">
+                <button type="button" class="page-link" (click)="goSalesTopPage(n)">{{ n }}</button>
+              </li>
+            }
+            <li
+              class="page-item"
+              [class.disabled]="salesTopPaged().page >= salesTopPaged().totalPages"
+            >
+              <button type="button" class="page-link" (click)="goSalesTopPage(salesTopPaged().page + 1)">
+                Siguiente
+              </button>
+            </li>
+          </ul>
+        </nav>
+      }
     </div>
   </div>
 }
@@ -213,6 +315,37 @@
     </div>
   </div>
 
+  <div class="ax-panel mb-3">
+    <div class="input-group">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input
+        type="search"
+        class="form-control"
+        placeholder="Buscar SKU, producto, categoría, estado..."
+        [value]="inventoryQuery()"
+        (input)="onInventorySearch($any($event.target).value)"
+      />
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+    <div class="small text-muted">{{ inventoryPaged().rangeLabel }}</div>
+    <div class="d-flex align-items-center gap-2">
+      <label class="small text-muted mb-0" for="inventoryPageSize">Por página</label>
+      <select
+        id="inventoryPageSize"
+        class="form-select form-select-sm"
+        style="width: 4.75rem; min-width: 4.75rem"
+        [value]="inventoryPageSize()"
+        (change)="onInventoryPageSize($any($event.target).value)"
+      >
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+    </div>
+  </div>
+
   <div class="table-responsive">
     <table class="table table-sm table-striped table-hover align-middle">
       <thead>
@@ -227,7 +360,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (item of inv.items; track item.id) {
+        @for (item of inventoryPaged().items; track item.id) {
           <tr>
             <td>{{ item.sku }}</td>
             <td>{{ item.name }}</td>
@@ -245,12 +378,37 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="7" class="text-center text-muted">Sin productos</td>
+            <td colspan="7" class="text-center text-muted">Sin resultados</td>
           </tr>
         }
       </tbody>
     </table>
   </div>
+
+  @if (inventoryPaged().totalPages > 1) {
+    <nav class="mt-3" aria-label="Paginación inventario">
+      <ul class="pagination justify-content-center mb-0">
+        <li class="page-item" [class.disabled]="inventoryPaged().page <= 1">
+          <button type="button" class="page-link" (click)="goInventoryPage(inventoryPaged().page - 1)">
+            Anterior
+          </button>
+        </li>
+        @for (n of inventoryPaged().pageNumbers; track n) {
+          <li class="page-item" [class.active]="n === inventoryPaged().page">
+            <button type="button" class="page-link" (click)="goInventoryPage(n)">{{ n }}</button>
+          </li>
+        }
+        <li
+          class="page-item"
+          [class.disabled]="inventoryPaged().page >= inventoryPaged().totalPages"
+        >
+          <button type="button" class="page-link" (click)="goInventoryPage(inventoryPaged().page + 1)">
+            Siguiente
+          </button>
+        </li>
+      </ul>
+    </nav>
+  }
 }
 
 @if (!loading() && activeTab() === 'purchases' && purchasesData(); as pur) {
@@ -298,6 +456,33 @@
   <div class="row g-4">
     <div class="col-lg-5">
       <h2 class="h6">Por proveedor</h2>
+      <div class="input-group input-group-sm mb-2">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input
+          type="search"
+          class="form-control"
+          placeholder="Buscar proveedor..."
+          [value]="purchasesSupplierQuery()"
+          (input)="onPurchasesSupplierSearch($any($event.target).value)"
+        />
+      </div>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <div class="small text-muted">{{ purchasesSupplierPaged().rangeLabel }}</div>
+        <div class="d-flex align-items-center gap-2">
+          <label class="small text-muted mb-0" for="purchasesSupplierPageSize">Por página</label>
+          <select
+            id="purchasesSupplierPageSize"
+            class="form-select form-select-sm"
+            style="width: 4.75rem; min-width: 4.75rem"
+            [value]="purchasesSupplierPageSize()"
+            (change)="onPurchasesSupplierPageSize($any($event.target).value)"
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+      </div>
       <div class="table-responsive">
         <table class="table table-sm table-striped align-middle">
           <thead>
@@ -308,7 +493,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of pur.by_supplier; track row.id) {
+            @for (row of purchasesSupplierPaged().items; track row.id) {
               <tr>
                 <td>{{ row.supplier_name }}</td>
                 <td class="text-end">{{ row.purchases_count }}</td>
@@ -316,16 +501,79 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="3" class="text-center text-muted">Sin compras en el período</td>
+                <td colspan="3" class="text-center text-muted">Sin resultados</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
+      @if (purchasesSupplierPaged().totalPages > 1) {
+        <nav class="mt-2" aria-label="Paginación por proveedor">
+          <ul class="pagination pagination-sm justify-content-center mb-0">
+            <li class="page-item" [class.disabled]="purchasesSupplierPaged().page <= 1">
+              <button
+                type="button"
+                class="page-link"
+                (click)="goPurchasesSupplierPage(purchasesSupplierPaged().page - 1)"
+              >
+                Anterior
+              </button>
+            </li>
+            @for (n of purchasesSupplierPaged().pageNumbers; track n) {
+              <li class="page-item" [class.active]="n === purchasesSupplierPaged().page">
+                <button type="button" class="page-link" (click)="goPurchasesSupplierPage(n)">
+                  {{ n }}
+                </button>
+              </li>
+            }
+            <li
+              class="page-item"
+              [class.disabled]="
+                purchasesSupplierPaged().page >= purchasesSupplierPaged().totalPages
+              "
+            >
+              <button
+                type="button"
+                class="page-link"
+                (click)="goPurchasesSupplierPage(purchasesSupplierPaged().page + 1)"
+              >
+                Siguiente
+              </button>
+            </li>
+          </ul>
+        </nav>
+      }
     </div>
 
     <div class="col-lg-7">
-      <h2 class="h6">Compras recientes</h2>
+      <h2 class="h6">Compras del período</h2>
+      <div class="input-group input-group-sm mb-2">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input
+          type="search"
+          class="form-control"
+          placeholder="Buscar número, proveedor o usuario..."
+          [value]="purchasesRecentQuery()"
+          (input)="onPurchasesRecentSearch($any($event.target).value)"
+        />
+      </div>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <div class="small text-muted">{{ purchasesRecentPaged().rangeLabel }}</div>
+        <div class="d-flex align-items-center gap-2">
+          <label class="small text-muted mb-0" for="purchasesRecentPageSize">Por página</label>
+          <select
+            id="purchasesRecentPageSize"
+            class="form-select form-select-sm"
+            style="width: 4.75rem; min-width: 4.75rem"
+            [value]="purchasesRecentPageSize()"
+            (change)="onPurchasesRecentPageSize($any($event.target).value)"
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+      </div>
       <div class="table-responsive">
         <table class="table table-sm table-striped align-middle">
           <thead>
@@ -338,7 +586,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of pur.recent; track row.id) {
+            @for (row of purchasesRecentPaged().items; track row.id) {
               <tr>
                 <td>{{ row.purchase_number }}</td>
                 <td>{{ row.purchased_at | date: 'short' }}</td>
@@ -348,12 +596,46 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="text-center text-muted">Sin compras</td>
+                <td colspan="5" class="text-center text-muted">Sin resultados</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
+      @if (purchasesRecentPaged().totalPages > 1) {
+        <nav class="mt-2" aria-label="Paginación compras del período">
+          <ul class="pagination pagination-sm justify-content-center mb-0">
+            <li class="page-item" [class.disabled]="purchasesRecentPaged().page <= 1">
+              <button
+                type="button"
+                class="page-link"
+                (click)="goPurchasesRecentPage(purchasesRecentPaged().page - 1)"
+              >
+                Anterior
+              </button>
+            </li>
+            @for (n of purchasesRecentPaged().pageNumbers; track n) {
+              <li class="page-item" [class.active]="n === purchasesRecentPaged().page">
+                <button type="button" class="page-link" (click)="goPurchasesRecentPage(n)">
+                  {{ n }}
+                </button>
+              </li>
+            }
+            <li
+              class="page-item"
+              [class.disabled]="purchasesRecentPaged().page >= purchasesRecentPaged().totalPages"
+            >
+              <button
+                type="button"
+                class="page-link"
+                (click)="goPurchasesRecentPage(purchasesRecentPaged().page + 1)"
+              >
+                Siguiente
+              </button>
+            </li>
+          </ul>
+        </nav>
+      }
     </div>
   </div>
 }
