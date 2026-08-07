@@ -28,6 +28,38 @@ export interface ApiListResponse<T> {
   message?: string;
 }
 
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface ApiPagedResponse<T> {
+  ok: boolean;
+  data: T[];
+  meta: PaginationMeta;
+  message?: string;
+}
+
+export type ProductSearchField =
+  | 'all'
+  | 'sku'
+  | 'name'
+  | 'category'
+  | 'type'
+  | 'status';
+
+export interface ProductListParams {
+  q?: string;
+  field?: ProductSearchField;
+  page?: number;
+  pageSize?: number;
+  active?: number;
+  product_type?: string;
+  category_id?: number;
+}
+
 export interface ApiItemResponse<T> {
   ok: boolean;
   data: T;

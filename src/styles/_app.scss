@@ -255,6 +255,23 @@ main .text-muted,
   border-color: var(--ax-brand);
 }
 
+/* Pagination */
+.pagination .page-link {
+  color: var(--ax-brand);
+  border-color: var(--ax-border);
+  font-weight: 650;
+}
+
+.pagination .page-item.active .page-link {
+  background: linear-gradient(180deg, var(--ax-brand-soft) 0%, var(--ax-brand) 100%);
+  border-color: var(--ax-brand);
+  color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #9aa7b1;
+}
+
 /* Nav tabs (reports) */
 .nav-tabs {
   border-bottom-color: var(--ax-border);

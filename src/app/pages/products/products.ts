@@ -1,11 +1,17 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { CategoriesService } from '../../core/services/categories.service';
 import { ProductsService } from '../../core/services/products.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Category, Product, ProductType } from '../../core/models/api.models';
+import {
+  Category,
+  Product,
+  ProductSearchField,
+  ProductType,
+} from '../../core/models/api.models';
 import { hideBootstrapModal, showBootstrapModal } from '../../core/utils/bootstrap-modal';
 
 @Component({
@@ -13,11 +19,13 @@ import { hideBootstrapModal, showBootstrapModal } from '../../core/utils/bootstr
   imports: [ReactiveFormsModule, CurrencyPipe],
   templateUrl: './products.html',
 })
-export class Products implements OnInit {
+export class Products implements OnInit, OnDestroy {
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
   private readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
+  private readonly destroy$ = new Subject<void>();
+  private readonly searchInput$ = new Subject<string>();
 
   protected readonly products = signal<Product[]>([]);
   protected readonly categories = signal<Category[]>([]);
@@ -26,6 +34,40 @@ export class Products implements OnInit {
   protected readonly error = signal('');
   protected readonly success = signal('');
   protected readonly editingProduct = signal<Product | null>(null);
+
+  protected readonly page = signal(1);
+  protected readonly pageSize = signal(10);
+  protected readonly total = signal(0);
+  protected readonly totalPages = signal(1);
+  protected readonly searchField = signal<ProductSearchField>('all');
+  protected readonly searchText = signal('');
+
+  protected readonly pageNumbers = computed(() => {
+    const current = this.page();
+    const total = this.totalPages();
+    const windowSize = 5;
+    let start = Math.max(1, current - Math.floor(windowSize / 2));
+    let end = Math.min(total, start + windowSize - 1);
+    start = Math.max(1, end - windowSize + 1);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  });
+
+  protected readonly rangeLabel = computed(() => {
+    const total = this.total();
+    if (!total) return '0 resultados';
+    const from = (this.page() - 1) * this.pageSize() + 1;
+    const to = Math.min(this.page() * this.pageSize(), total);
+    return `${from}-${to} de ${total}`;
+  });
+
+  protected readonly searchFields: { value: ProductSearchField; label: string }[] = [
+    { value: 'all', label: 'Todos los campos' },
+    { value: 'sku', label: 'SKU' },
+    { value: 'name', label: 'Nombre' },
+    { value: 'category', label: 'Categoría' },
+    { value: 'type', label: 'Tipo' },
+    { value: 'status', label: 'Estado' },
+  ];
 
   protected readonly productTypes: { value: ProductType; label: string }[] = [
     { value: 'product', label: 'Producto' },
@@ -57,28 +99,82 @@ export class Products implements OnInit {
   }
 
   ngOnInit(): void {
+    this.categoriesService.list().subscribe({
+      next: (cats) => this.categories.set(cats),
+      error: () => this.error.set('No se pudieron cargar las categorías'),
+    });
+
+    this.searchInput$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((value) => {
+        this.searchText.set(value);
+        this.page.set(1);
+        this.load();
+      });
+
     this.load();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   load(): void {
     this.loading.set(true);
     this.error.set('');
 
-    this.categoriesService.list().subscribe({
-      next: (cats) => this.categories.set(cats),
-      error: () => this.error.set('No se pudieron cargar las categorías'),
-    });
+    this.productsService
+      .listPaged({
+        q: this.searchText(),
+        field: this.searchField(),
+        page: this.page(),
+        pageSize: this.pageSize(),
+      })
+      .subscribe({
+        next: (res) => {
+          this.products.set(res.data ?? []);
+          this.total.set(res.meta?.total ?? 0);
+          this.page.set(res.meta?.page ?? 1);
+          this.pageSize.set(res.meta?.pageSize ?? 10);
+          this.totalPages.set(res.meta?.totalPages ?? 1);
+          this.loading.set(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.loading.set(false);
+          this.error.set(err.error?.message || 'No se pudieron cargar los productos');
+        },
+      });
+  }
 
-    this.productsService.list().subscribe({
-      next: (items) => {
-        this.products.set(items);
-        this.loading.set(false);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading.set(false);
-        this.error.set(err.error?.message || 'No se pudieron cargar los productos');
-      },
-    });
+  onSearchInput(value: string): void {
+    this.searchInput$.next(value);
+  }
+
+  onSearchFieldChange(value: string): void {
+    this.searchField.set((value as ProductSearchField) || 'all');
+    this.page.set(1);
+    this.load();
+  }
+
+  clearSearch(): void {
+    this.searchText.set('');
+    this.searchField.set('all');
+    this.page.set(1);
+    this.load();
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages() || page === this.page()) return;
+    this.page.set(page);
+    this.load();
+  }
+
+  onPageSizeChange(value: string): void {
+    const size = Number(value) || 10;
+    this.pageSize.set(size);
+    this.page.set(1);
+    this.load();
   }
 
   create(): void {
